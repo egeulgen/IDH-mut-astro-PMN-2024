@@ -1,5 +1,6 @@
 ##### Script purpose: Prepare gene-level SCNA data 
-##### Author: Ege Ulgen Date: Dec 2023
+##### Author: Ege Ulgen 
+##### Date: Dec 2023
 
 library(Homo.sapiens)
 library(TxDb.Hsapiens.UCSC.hg38.knownGene)

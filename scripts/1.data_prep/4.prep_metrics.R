@@ -83,7 +83,7 @@ chr_arm_event_ratio <- rowSums(binary_mat) / 44
 
 hist(chr_arm_event_ratio)
 
-metadata_df$chr_arm_event_ratio <- chr_arm_event_ratio[match(metadata_df$patient, names(chr_arm_event_ratio))]
+metadata_df$chr_arm_event_ratio <- chr_arm_event_ratio[match(metadata_df$patient, substr(names(chr_arm_event_ratio), 1, 12))]
 metadata_df$chr_arm_event_ratio[is.na(metadata_df$chr_arm_event_ratio)] <- 0
 
 # CN amplitude ------------------------------------------------------------

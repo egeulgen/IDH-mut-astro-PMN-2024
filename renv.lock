@@ -206,6 +206,12 @@
       ],
       "Hash": "0e87ccb556894b0fd1593d7913fb4088"
     },
+    "DNAcopy": {
+      "Package": "DNAcopy",
+      "Version": "1.76.0",
+      "Source": "Bioconductor",
+      "Hash": "359d1dc501fca8350270b2f630e48690"
+    },
     "DelayedArray": {
       "Package": "DelayedArray",
       "Version": "0.28.0",
@@ -1712,6 +1718,23 @@
         "lattice"
       ],
       "Hash": "3434988413fbabfdb0fcd6067d7e1aa4"
+    },
+    "maftools": {
+      "Package": "maftools",
+      "Version": "2.18.0",
+      "Source": "Bioconductor",
+      "Requirements": [
+        "DNAcopy",
+        "R",
+        "RColorBrewer",
+        "Rhtslib",
+        "data.table",
+        "grDevices",
+        "methods",
+        "survival",
+        "zlibbioc"
+      ],
+      "Hash": "d33d0d128a74dd0ad656d19a533c0464"
     },
     "magrittr": {
       "Package": "magrittr",

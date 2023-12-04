@@ -114,3 +114,69 @@ produce_genome_SCNA_plot <- function(donor, SCNA_df, cytoband_df) {
     }
     title(donor)
 }
+
+#' Plot Bar Chart with Fisher's Exaxt Test p-value
+#'
+#' @param df data frame
+#' @param var1 categorical variable 1
+#' @param var2 categorical variable 2
+#' @param val "Positive" value
+#' @param x_lbl x-axis label
+#' @param y_lbl y-axis label
+#' @param ylab_size size of y-axis label
+#' @param y_lims y axis limits
+#' @param incr y-axis increment
+#' @param fisher_position position of p-value 
+#'
+#' @return ggplot object
+plot_cat <- function(df, var1, var2 = "PMN_hit", val = NULL,
+                     y_lbl = "PMN Hit", ylab_size = 14, y_lims = c(0, 1), 
+                     x_lbl = NULL,
+                     incr = 0.1, fisher_position = 1.45) {
+    require(ggplot2)
+    tbl <- table(df[, var1], df[, var2])
+    
+    perc_df <- round(tbl / rowSums(tbl), 4)
+    perc_df <- as.data.frame(perc_df)
+    
+    
+    if (is.null(val)) {
+        val <- levels(df[, var2])[1]
+    }
+    
+    perc_df <- perc_df[perc_df$Var2 == val, ]
+    
+    p <- ggplot(perc_df, aes(y = Freq, x = Var1, fill = Var1))
+    p <- p + geom_bar(stat = "identity", position = "stack", aes(color = Var1))
+    p <- p + geom_text(aes(label = paste0(Freq * 100, "%"), fontface = 2),
+                       position = position_stack(vjust = 0.5), size = 4, color = "white")
+    p <- p + geom_text(label = paste0("Fisher's exact,\np = ", round(fisher.test(tbl)$p.value, 3)),
+                       size = 3, position = position_stack(vjust = fisher_position),
+                       data = perc_df[perc_df$Var1 == perc_df$Var1[1], ])
+    p <- p + ggsci::scale_fill_lancet()
+    p <- p + ggsci::scale_color_lancet()
+    p <- p + ylab(y_lbl)
+    if (!is.null(x_lbl)) {
+        p <- p + xlab(x_lbl)
+    }
+    p <- p + scale_y_continuous(breaks = seq(0, 1, incr), limits = y_lims,
+                                labels = scales::percent_format(accuracy = 1),
+                                expand = c(0, 0))
+    p <- p + theme_minimal()
+    if (is.null(x_lbl)) {
+        p <- p + theme(
+            legend.position = "none",
+            axis.text = element_text(size = 11),
+            axis.title.y = element_text(face = "bold", size = ylab_size),
+            axis.title.x = element_blank()
+        )
+    } else {
+        p <- p + theme(
+            legend.position = "none",
+            axis.text = element_text(size = 11),
+            axis.title.y = element_text(face = "bold", size = ylab_size),
+            axis.title.x = element_text(face = "bold", size = ylab_size)
+        )
+    }
+    p
+}

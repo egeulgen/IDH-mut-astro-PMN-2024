@@ -6,3 +6,4 @@
 *.Rhistory
 data/TCGA-LGG/
 manuscript_related/
+MANIFEST.txt

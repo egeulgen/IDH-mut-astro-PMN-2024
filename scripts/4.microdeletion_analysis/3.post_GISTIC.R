@@ -1,4 +1,4 @@
-##### Script purpose: Analyze chr19 peaks identified by GISTIC in microdel19q cases
+##### Script purpose: Analyze chr19 peaks identified by GISTIC (on GenePattern) in microdel19q cases
 ##### Author: Ege Ulgen
 ##### Date: Dec 2023
 
@@ -34,11 +34,14 @@ sel_expr <- assay(dds_norm[rowData(dds_norm)$gene_name %in% tmp, ])
 anyDuplicated(rowData(dds_norm)$gene_name[match(rownames(sel_expr), rowData(dds_norm)$gene_id)])
 rownames(sel_expr) <- rowData(dds_norm)$gene_name[match(rownames(sel_expr), rowData(dds_norm)$gene_id)]
 
-pdf("output/PMN_neg_analysis/chr19.54940787.57124931_del_genes.pdf", width = 6, height = 6)
-for (gene in rownames(sel_expr)) {
-    boxplot(sel_expr[gene, colnames(sel_expr) %in% gsub("\\.", "-", colnames(GISTIC_peaks))],
-            sel_expr[gene, !colnames(sel_expr) %in% gsub("\\.", "-", colnames(GISTIC_peaks))],
-            main = gene, names = c("19q13.43 del", "intact"))
-}
-dev.off()
+sel_expr_long <- reshape2::melt(sel_expr)
+colnames(sel_expr_long) <- c("Gene", "Sample", "MYC expression")
+sel_expr_long$microdel <- ifelse(sel_expr_long$Sample %in% gsub("\\.", "-", colnames(GISTIC_peaks)), "19q13.43 del", "intact")
 
+g <- ggviolin(sel_expr_long, x = "microdel", y = "MYC expression", color = "microdel", 
+              add = "boxplot", facet.by = "Gene", palette = "npg")
+g <- g + stat_compare_means(method = "wilcox.test", method.args = list("alternative" = "less"))
+g <- g + rremove("legend")
+g <- g + rremove("xlab")
+
+ggsave("output/PMN_neg_analysis/chr19.54940787.57124931_del_genes.pdf", g, width = 15, height = 15)

@@ -155,7 +155,7 @@ g11
 
 ### CT
 g12 <- plot_cat(df = metadata_df, var1 = "PMN_hit", var2 = "CT", val = "CT+", x_lbl = "PMN Hit", y_lbl = "% with Chromothripsis",
-                y_lims = c(0, 0.4), incr = 0.05, fisher_position = 8.5)
+                y_lims = c(0, 0.4), incr = 0.05, fisher_position = .35)
 
 pdf("output/12.PMN_metric_assoc_OVERALL.pdf", width = 8, height = 10)
 ggarrange(g7, g8, g9, g10, g11, g12, labels = LETTERS[1:6], font.label = list(face = "bold", size = 18))
@@ -232,7 +232,7 @@ burden_by_grade <- function(grade) {
     
     ### CT
     g12 <- plot_cat(df = metadata_df_grade, var1 = "PMN_hit", var2 = "CT", val = "CT+", x_lbl = "PMN Hit", y_lbl = "% with Chromothripsis",
-                    y_lims = c(0, 0.3), incr = 0.05, fisher_position = 8.5)
+                    y_lims = c(0, 0.3), incr = 0.05, fisher_position = 0.3)
     
     g_final <- ggarrange(g7, g8, g9, g10, g11, g12, labels = LETTERS[1:6], font.label = list(face = "bold", size = 18))
     g_final <- annotate_figure(g_final, text_grob(grade, color = "black", face = "bold", size = 14))

@@ -23,7 +23,6 @@ colnames(methyl_data) <- substr(colnames(methyl_data), 1, 12)
 
 all(metadata_df$patient %in% colnames(methyl_data))
 
-
 # MYC exon 3 hypomethylation ----------------------------------------------
 metadata_df$MYC_exon3_hypomet <- metadata_df$patient %in% names(which(methyl_data["cg00163372", ] < 0.5))
 
@@ -79,3 +78,5 @@ g4 <- g4 + stat_compare_means()
 g_comb <- ggpubr::ggarrange(g1, g2, g3, g4, labels = LETTERS[1:4])
 
 ggsave("output/8.methylation_changes.pdf", g_comb, width = 8, height = 8)
+
+saveRDS(metadata_df, "data/selected_data/meta.RDS")

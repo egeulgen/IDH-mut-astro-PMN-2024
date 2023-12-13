@@ -57,7 +57,7 @@
 #LR : likelihood ratio
 #Pvalue
 #
-#5. Choose the appropriate thresholds to “call??? chromothripsis-like patterns.
+#5. Choose the appropriate thresholds to “call chromothripsis-like patterns.
 #According to the training set, the default thresholds are: SwitchNo >= 20 and log10(LR) >= 8.
 #With the included two examples, Chromosome 2 of GSM681792 and Chromosome 10 of GSM681810 are identified as chromothripsis.
 ####################################################################################################

@@ -7,7 +7,6 @@ library(survival)
 library(survminer)
 
 metadata_df <- readRDS("data/selected_data/meta.RDS")
-dds_norm <- readRDS("data/selected_data/processed_expr.RDS")
 
 metadata_df$PMN_hit <- as.character(metadata_df$PMN_hit)
 metadata_df$PMN_hit <- sub("\\n.+", "", metadata_df$PMN_hit)
@@ -23,15 +22,13 @@ metadata_df$class <- ifelse(metadata_df$PMN_hit == "hit", "PMN-hit",
 metadata_df$class <- factor(metadata_df$class, levels = c("WT", "microdel19q", "PMN-hit"))
 table(metadata_df$class)
 
-myc_expr <- assay(dds_norm[rowData(dds_norm)$gene_name == "MYC", ])
-metadata_df$MYC_expr <- myc_expr[, match(metadata_df$patient,colnames(myc_expr))]
-
-saveRDS(metadata_df, "data/selected_data/meta.RDS")
-
 ### overall violin
 g <- ggviolin(metadata_df, x = "class", y = "MYC_expr", color = "class", palette = "lancet", add = c("jitter", "boxplot"), xlab = "", ylab = "Normalized MYC expression")
 g <- g + stat_compare_means(comparisons = list(c("WT", "microdel19q"), c("WT", "PMN-hit"),
-                                               c("microdel19q", "PMN-hit")))
+                                               c("microdel19q", "PMN-hit")),
+                            method = "wilcox.test",
+                            method.args = list("alternative" = "less")
+                            )
 g <- g + rremove("legend")
 g
 
@@ -152,7 +149,9 @@ comps_list <- list(c("WT", "microdel19q"), c("WT", "PMN-hit"),
 g6 <- ggviolin(metadata_df, "class", "snv_burden", color = "class",
                xlab = "", ylab = "SNV Burden", palette = "lancet", add =  "jitter")
 g6 <- g6 + rremove("legend")
-g6 <- g6 + stat_compare_means(comparisons = comps_list)
+g6 <- g6 + stat_compare_means(comparisons = comps_list,
+                              method = "wilcox.test",
+                              method.args = list("alternative" = "less"))
 g6 <- g6 + scale_y_continuous(breaks = 0:15)
 g6 <- g6 + theme(legend.position = "none",
                  axis.text = element_text(size = 11),
@@ -164,7 +163,9 @@ g6
 g7 <- ggviolin(metadata_df, "class", "indel_burden", color = "class",
                xlab = "", ylab = "InDel Burden", palette = "lancet", add =  "jitter")
 g7 <- g7 + rremove("legend")
-g7 <- g7 + stat_compare_means(comparisons = comps_list)
+g7 <- g7 + stat_compare_means(comparisons = comps_list,
+                              method = "wilcox.test",
+                              method.args = list("alternative" = "less"))
 g7 <- g7 + scale_y_continuous(breaks = seq(0, 2, 0.1))
 g7 <- g7 + theme(legend.position = "none",
                  axis.text = element_text(size = 11),
@@ -176,7 +177,9 @@ g7
 g8 <- ggviolin(metadata_df, "class", "WGII", color = "class",
                xlab = "", ylab = "Copy-number Alteration Frequency (wGII)", palette = "lancet", add =  "jitter")
 g8 <- g8 + rremove("legend")
-g8 <- g8 + stat_compare_means(comparisons = comps_list)
+g8 <- g8 + stat_compare_means(comparisons = comps_list,
+                              method = "wilcox.test",
+                              method.args = list("alternative" = "less"))
 g8 <- g8 + scale_y_continuous(breaks = seq(0, 2, 0.1))
 g8 <- g8 + theme(legend.position = "none",
                  axis.text = element_text(size = 11),
@@ -188,7 +191,9 @@ g8
 g9 <- ggviolin(metadata_df, "class", "chr_arm_event_ratio", color = "class",
                xlab = "", ylab = "Degree of Aneuploidy (CAER)", palette = "lancet", add =  "jitter")
 g9 <- g9 + rremove("legend")
-g9 <- g9 + stat_compare_means(comparisons = comps_list)
+g9 <- g9 + stat_compare_means(comparisons = comps_list,
+                              method = "wilcox.test",
+                              method.args = list("alternative" = "less"))
 g9 <- g9 + scale_y_continuous(breaks = seq(0, 2, 0.1))
 g9 <- g9 + theme(legend.position = "none",
                  axis.text = element_text(size = 11),
@@ -200,7 +205,9 @@ g9
 g10 <- ggviolin(metadata_df, "class", "maxCN", color = "class",
                 xlab = "", ylab = "Copy-number Amplitude", palette = "lancet", add =  "jitter")
 g10 <- g10 + rremove("legend")
-g10 <- g10 + stat_compare_means(comparisons = comps_list)
+g10 <- g10 + stat_compare_means(comparisons = comps_list,
+                                method = "wilcox.test",
+                                method.args = list("alternative" = "less"))
 g10 <- g10 + scale_y_continuous(breaks = seq(0, 250, 25))
 g10 <- g10 + theme(legend.position = "none",
                    axis.text = element_text(size = 11),

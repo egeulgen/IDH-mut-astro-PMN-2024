@@ -8,7 +8,7 @@ all_segs <- readRDS("data/selected_data/CN_segments.RDS")
 
 outdir <- file.path("output", "PMN_neg_analysis", "all_GISTIC_res")
 
-dir.create(out_dir, showWarnings = FALSE)
+dir.create(outdir, showWarnings = FALSE)
 
 write_seg_file <- function(sel_class) {
     selected_pts <- metadata_df$patient[metadata_df$class == sel_class]

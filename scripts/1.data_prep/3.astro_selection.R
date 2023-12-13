@@ -23,6 +23,7 @@ table(final_meta_df$tumor_grade.y)
 
 ## check for CDKN2A/2B hom. deletion
 tmp <- gene_scna[gene_scna$symbol %in% c("CDKN2A", "CDKN2B"), ]
+hist(tmp$Segment_Mean, breaks = 100)
 cdkn_hom_loss <- unique(tmp$patient_barcode[tmp$Segment_Mean < -1])
 final_meta_df$CDKN2A_2B_hom_loss <- final_meta_df$patient %in% cdkn_hom_loss
 
@@ -52,7 +53,7 @@ final_meta_df$CDR_DFI_time <- TCGA_CDR_df$DFI.time[idx]
 
 
 dir.create("data/selected_data")
-saveRDS(final_meta_df, "data/selected_data/meta.RDS")
+saveRDS(as.data.frame(final_meta_df), "data/selected_data/meta.RDS")
 saveRDS(maf_df[maf_df$patient_barcode %in% final_meta_df$patient, ], "data/selected_data/maf.RDS")
 saveRDS(SCNA_segs[SCNA_segs$patient_barcode %in% final_meta_df$patient, ], "data/selected_data/CN_segments.RDS")
 saveRDS(selected_scna_genes, "data/selected_data/CN_gene_level.RDS")

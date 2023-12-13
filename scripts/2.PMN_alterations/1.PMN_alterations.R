@@ -10,8 +10,8 @@ metadata_df <- readRDS("data/selected_data/meta.RDS")
 som_df <- readRDS("data/selected_data/maf.RDS")
 gene_scna <- readRDS("data/selected_data/CN_gene_level.RDS")
 
-# proximal MYC network genes from Schaub 2018
-# "FBXW7" from Bai 2016
+# proximal MYC network genes from Schaub et al. 2018
+# "FBXW7" from Bai et al. 2016
 PMN_genes <- read.csv("data/PMN_gene_list.csv")
 
 pmn_som_df <- som_df[som_df$Hugo_Symbol %in% PMN_genes$Gene.name, ]

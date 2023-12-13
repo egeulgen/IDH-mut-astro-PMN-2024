@@ -86,9 +86,6 @@ p <- ggplot(perc_df, aes(y = Freq, x = Var1, fill = Var1))
 p <- p + geom_bar(stat = "identity", position = "stack", aes(color = Var1))
 p <- p + geom_text(aes(label = paste0(Freq * 100, "%"), fontface = 2),
                    position = position_stack(vjust = 0.5), size = 4, color = "white")
-# p <- p + geom_text(label = paste0("Fisher's exact,\np = ", round(fisher.test(tbl)$p.value, 3)),
-#                    size = 3, position = position_stack(vjust = 2),
-#                    data = perc_df[perc_df$Var1 == perc_df$Var1[1], ])
 p <- p + ggsci::scale_fill_lancet()
 p <- p + ggsci::scale_color_lancet()
 p <- p + ylab("% 19q13.43 microdeletion") + xlab("Class")

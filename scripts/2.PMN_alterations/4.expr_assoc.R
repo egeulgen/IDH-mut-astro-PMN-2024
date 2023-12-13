@@ -6,10 +6,6 @@ library(DESeq2)
 library(ggpubr)
 
 metadata_df <- readRDS("data/selected_data/meta.RDS")
-dds_norm <- readRDS("data/selected_data/processed_expr.RDS")
-
-MYC_expr <- assay(dds_norm[rowData(dds_norm)$gene_name == "MYC", ])
-metadata_df$MYC_expr <- MYC_expr[match(metadata_df$patient, colnames(MYC_expr))]
 
 grade_levels <- levels(metadata_df$mol_grade)
 
@@ -74,7 +70,6 @@ dev.off()
 scna_df <- readRDS('data/selected_data/CN_gene_level.RDS')
 
 tmp <- scna_df[scna_df$symbol == "MYC", ]
-tmp <- tmp[tmp$patient_barcode %in% dds_norm$patient, ]
 tmp <- tmp[order(tmp$Segment_Mean, decreasing = TRUE), ]
 tmp <- tmp[!duplicated(tmp$patient_barcode), ]
 
@@ -84,7 +79,7 @@ for_plot_df <- data.frame(donor_id = metadata_df$patient,
                           MYC_amp = metadata_df$MYC_amp,
                           MYC_paralog_amp = metadata_df$MYC_paralog_amp,
                           MYC_expr = metadata_df$MYC_expr,
-                          MYC_logR = tmp$Segment_Mean[match(dds_norm$patient, tmp$patient_barcode)])
+                          MYC_logR = tmp$Segment_Mean[match(metadata_df$patient, tmp$patient_barcode)])
 
 ggscatter(for_plot_df, "MYC_logR", "MYC_expr", color = "grade", palette = mol_grade_cols, cor.coef = TRUE)
 ggscatter(for_plot_df, "MYC_logR", "MYC_expr", color = "grade", facet.by = "PMN_hit", palette = mol_grade_cols, cor.coef = TRUE)

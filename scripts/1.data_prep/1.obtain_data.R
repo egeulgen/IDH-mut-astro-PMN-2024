@@ -112,17 +112,18 @@ meta_df$final_subtype[meta_df$paper_IDH.codel.subtype == "IDHmut-non-codel" & me
 # non-codel in paper / current subtype - codel
 codel_mismatch_df <- meta_df[meta_df$paper_IDH.codel.subtype == "IDHmut-non-codel" & meta_df$manual_subtype == "mut--codel", ]
 
-pdf("output/mistaken_codels.pdf", width = 25, height = 6)
+pdf("output/mistaken_codels_for_manual_inspection.pdf", width = 25, height = 6)
 for (patient_id in codel_mismatch_df$patient) {
     produce_genome_SCNA_plot(patient_id, prim_scna_segs_final, cytoband_df)
 }
 dev.off()
 
-true_codels <- c("TCGA-CS-5394", "TCGA-FG-7637", "TCGA-VM-A8CA")
+true_codels <- c("TCGA-HT-8113", "TCGA-S9-A6U8", "TCGA-FG-7637", "TCGA-VM-A8CA",
+                 "TCGA-E1-A7YY", "TCGA-DU-A7TG", "TCGA-CS-5394", "TCGA-HT-7602",
+                 "TCGA-FG-8189", "TCGA-S9-A6WI", "TCGA-S9-A6WQ", "TCGA-WY-A85E")
 
 non_codels <- setdiff(codel_mismatch_df$patient, true_codels)
 meta_df$final_subtype[meta_df$patient %in% non_codels] <- "mut--non-codel"
-
 
 table(meta_df$final_subtype, meta_df$paper_IDH.codel.subtype, exclude = FALSE)
 

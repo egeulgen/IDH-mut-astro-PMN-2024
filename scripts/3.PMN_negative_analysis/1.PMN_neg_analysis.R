@@ -38,8 +38,6 @@ for (gene in all_other_genes) {
                                 cor = res$estimate,
                                 p = res$p.value))
 }
-cor_res$adj_p <- p.adjust(cor_res$p, "fdr")
-sum(cor_res$adj_p < 0.2 & abs(cor_res$cor) > .2)
 
 # MYC expr. - som. alteration assoc ---------------------------------------
 donor_no_PMN <- metadata_df[metadata_df$PMN_hit == "no hit", ]
@@ -101,12 +99,10 @@ for (gene in all_genes) {
 }
 
 assoc_df$median_diff <- assoc_df$median_alt - assoc_df$median_WT
-assoc_df$adj_p <- p.adjust(assoc_df$p, "fdr")
-sum(assoc_df$adj_p < 0.2)
 
 # enrichment --------------------------------------------------------------
-filtered_genes <- intersect(assoc_df$gene[assoc_df$adj_p < 0.2], cor_res$gene[cor_res$adj_p < 0.2 & abs(cor_res$cor) > .2])
-input_df <- assoc_df[assoc_df$gene %in% filtered_genes, c("gene", "adj_p")]
+filtered_genes <- intersect(assoc_df$gene[assoc_df$p < 0.05], cor_res$gene[cor_res$p < 0.05 & abs(cor_res$cor) > .2])
+input_df <- assoc_df[assoc_df$gene %in% filtered_genes, c("gene", "p")]
 
 res_pf_df <- run_pathfindR(input_df, output_dir = "output/PMN_neg_analysis", list_active_snw_genes = TRUE, p_val_threshold = 0.2)
 saveRDS(res_pf_df, "output/PMN_neg_analysis/enr_result.RDS")

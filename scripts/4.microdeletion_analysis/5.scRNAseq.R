@@ -4,7 +4,11 @@
 ##### Date: Dec 2023
 
 library(Seurat)
+library(ggplot2)
+library(copykat)
 library(scGSVA)
+
+dir.create("output/Venteicher_scRNAseq", showWarnings = FALSE)
 
 # create seurat object ----------------------------------------------------
 counts_mat <- read.delim("data/Venteicher_scRNAseq/GSE89567_IDH_A_processed_data.txt.gz", row.names = 1)
@@ -24,16 +28,14 @@ counts_mat <- counts_mat[, sub("\\..*", "", colnames(counts_mat)) %in% samples_d
 meta_df <- samples_df[match(sub("\\..*", "", colnames(counts_mat)), samples_df$Designation), ]
 rownames(meta_df) <- colnames(counts_mat)
 
-astro_obj <- Createastro_object(counts = counts_mat,
-                                min.cells = 3, min.genes = 200,
+astro_obj <- CreateSeuratObject(counts = counts_mat,
+                                min.cells = 3, min.features = 200,
                                 meta.data = meta_df,
                                 names.field = 1, names.delim = "\\.")
 
 saveRDS(astro_obj, "data/Venteicher_scRNAseq/seurat_obj.RDS")
 
 # process seurat object ---------------------------------------------------
-astro_obj <- readRDS("data/Venteicher_scRNAseq/seurat_obj.RDS")
-
 astro_obj[["percent.mt"]] <- PercentageFeatureSet(astro_obj, pattern = "^MT-")
 astro_obj <- subset(astro_obj, subset = nFeature_RNA > 200 & nFeature_RNA < 5000 & percent.mt < 10)
 
@@ -45,57 +47,80 @@ astro_obj <- RunUMAP(astro_obj, reduction = "pca", dims = 1:30)
 astro_obj <- FindNeighbors(astro_obj, reduction = "pca", dims = 1:30)
 astro_obj <- FindClusters(astro_obj, reduction = "pca", resolution = 0.5)
 
-pdf("output/Venteicher_scRNAseq/dimPlot.pdf", width = 5, height = 5)
-DimPlot(astro_obj, label = TRUE)
-dev.off()
+g <- DimPlot(astro_obj, label = TRUE)
+ggsave("output/Venteicher_scRNAseq/dimPlot.pdf", g, width = 5, height = 5)
 
 # cell type ann ------------------------------------------------------------
 ## cell type annot. - https://www.frontiersin.org/articles/10.3389/fgene.2020.00490/full
 # https://github.com/bioinfo-ibms-pumc/SCSA
 all_markers <- FindAllMarkers(astro_obj)
-
 colnames(all_markers)[colnames(all_markers) == "avg_log2FC"] <- "avg_logFC"
-write.csv(all_markers, "data/Venteicher_scRNAseq/SCSA/all_markers.csv", row.names = FALSE)
+write.csv(all_markers, "scripts/tools/SCSA/all_markers.csv", row.names = FALSE)
 
 # run SCSA
-# python3 SCSA.py -d whole.db -s seurat -i all_markers.csv -k All --Gensymbol -g Human -f 1 -p 0.01 --celltype cancer
+# cd scripts/tools/SCSA/
+# poetry run python SCSA.py -d whole_v2.db -s seurat -i all_markers.csv -k All --Gensymbol -g Human -f 1 -p 0.01 --celltype cancer
 # #Cluster Type Celltype Score Times
-# ['0', '?', 'Cancer stem cell|Regulatory T (Treg) cell', '3.0441142732384363|1.7489064755721913', 1.7405815095072428]
-# ['1', '?', 'Exhausted CD8+ T cell|Regulatory T (Treg) cell', '0.8552031961088614|0.7172017101585542', 1.192416560077358]
-# ['2', 'Good', 'Cancer stem cell', 4.304530680137537, 5.016102919495587]
-# ['3', 'Good', 'Cancer stem cell', 1.4999954157198911, 3.0210686120140826]
-# ['4', 'N', '-', '-', '-']
-# ['5', 'Good', 'Cancer stem cell', 3.2768228560074557, 7.200487391599209]
-# ['6', '?', 'Cancer cell|Cancer stem cell', '0.9252797318468855|0.8543580042003678', 1.0830117202599354] ***
-# ['7', '?', 'Macrophage|Dendritic cell', '2.8347821263318003|2.210781179864086', 1.2822535998366316]
-# ['8', '?', 'Cancer stem cell|Cancer cell', '2.3935892720884127|1.2156978955877964', 1.9689013864181277] *
+# ['0', 'Good', 'Macrophage', 10.360214672412098, 2.1633211942646833]
+# ['1', '?', 'Fibroblast|Endothelial cell', '8.032428474469345|5.405594317546298', 1.4859473357807245]
+# ['2', 'Good', 'Macrophage', 9.670698887642029, 2.031690502450226]
+# ['3', '?', 'Cancer stem cell|Fibroblast', '6.388510769882183|3.2755558467200254', 1.950359288265322]
+# ['4', '?', 'Cancer stem cell|Cancer cell', '6.66028175074541|4.243321611549725', 1.5695915512548138]
+# ['5', 'Good', 'Macrophage', 9.39813692025507, 2.159848668014317]
+# ['6', '?', 'Cancer stem cell|Mesenchymal cell', '5.967879826481657|4.072912594859697', 1.465260961900715]
+# ['7', 'Good', 'Macrophage', 8.18091535385208, 2.2778441249043335]
+# ['8', 'Good', 'Oligodendrocyte', 7.137451774667723, 2.01133816178245]
 
-# python3 SCSA.py -d whole.db -s seurat -i all_markers.csv -k All --Gensymbol -g Human -f 1 -p 0.01
+# poetry run python SCSA.py -d whole_v2.db -s seurat -i all_markers.csv -k All --Gensymbol -g Human -f 1 -p 0.01
 # #Cluster Type Celltype Score Times
-# ['0', '?', 'Microglial cell|Macrophage', '6.63345937089474|6.214304615141349', 1.0674499854307282]
-# ['1', 'Good', 'Astrocyte', 5.458093829764412, 2.7443717305370625]
-# ['2', '?', 'Microglial cell|Macrophage', '6.745305574315266|6.417575197272179', 1.0510676333301696]
-# ['3', '?', 'Oligodendrocyte|Neural stem cell', '4.694209337985199|3.275531014455353', 1.433113995034402]
-# ['4', 'Good', 'Oligodendrocyte', 2.041021903528525, 5.225224381424466]
-# ['5', '?', 'Macrophage|Monocyte', '7.122096666849755|5.557320603821522', 1.281570234035482]
-# ['6', 'Good', 'Astrocyte', 8.840872544795136, 7.433811011558405] ***
-# ['7', '?', 'Microglial cell|Macrophage', '7.086374961494544|4.6507538532848525', 1.5237045831805094]
-# ['8', '?', 'Oligodendrocyte|Astrocyte', '6.540427581726498|4.151135109474173', 1.5755756941756056] *
+# ['0', '?', 'Microglial cell|Macrophage', '14.788337801684538|10.055857271520885', 1.4706193020028708]
+# ['1', '?', 'Endothelial cell|Neuron', '10.884506391810927|8.507236881011398', 1.2794408506604207]
+# ['2', '?', 'Microglial cell|Monocyte', '12.50486863098912|11.297462144054583', 1.1068741343444066]
+# ['3', '?', 'Astrocyte|Oligodendrocyte', '7.171877977081825|6.644286468735449', 1.0794052921753068]
+# ['4', '?', 'Neuron|Astrocyte', '11.74834475429808|7.183710734902439', 1.635414507605119]
+# ['5', '?', 'Monocyte|Macrophage', '13.168146304774416|11.636039162420976', 1.131669129071122]
+# ['6', 'Good', 'Astrocyte', 17.349134067736852, 8.227337010561945]
+# ['7', '?', 'Microglial cell|Macrophage', '13.132553406797685|9.373210345126887', 1.4010731567146866]
+# ['8', 'Good', 'Oligodendrocyte', 14.515628975024633, 6.069562588017648]
+
+cluster_type_vec <- c("0" = "Normal cell", "1" = "Normal cell", "2" = "Normal cell", "3" = "Cancer cell", "4" = "Cancer cell",
+                      "5"= "Normal cell", "6" = "Cancer cell", "7" = "Normal cell", "8" = "Cancer cell")
+
+# CNV estimation ----------------------------------------------------------
+exp.rawdata <- as.matrix(astro_obj[["RNA"]]$counts)
+
+copykat_res <- copykat(
+    rawmat=exp.rawdata, id.type="S", ngene.chr=5, win.size=25, KS.cut=0.1, 
+    sam.name="astro", distance="euclidean", norm.cell.names="", 
+    output.seg="FLASE", plot.genes="FALSE", genome="hg20",n.cores=10
+)
+
+copykat_pred <- data.frame(copykat_res$prediction)
+copykat_pred <- copykat_pred[copykat_pred$copykat.pred != "not.defined", ]  ##remove undefined cells
+
+copykat_CNA<- data.frame(copykat_res$CNAmat)
+copykat_CNA_chr19 <- copykat_CNA[copykat_CNA$chrom == 19, ]
+
+selected_copykat_df <- copykat_CNA_chr19[copykat_CNA_chr19$chrompos >= 54950535 & copykat_CNA_chr19$chrompos <= 56859293, ]
+# heatmap(ifelse(as.matrix(selected_copykat_df[, -c(1:3)]) < 0, -1, 1))
+# selected_copykat_df <- selected_copykat_df[c("10997", "10998", "10999"), ]
+
+D6_ave_copykat <- apply(selected_copykat_df[, -c(1,3)], 1, min)
+astro_obj$D6_CNA_min_value <- D6_ave_copykat[colnames(astro_obj)]
+
+(g1 <- FeaturePlot(astro_obj, features = c("D6_CNA_value", "MYC"), blend = TRUE, label = TRUE))
+
+cancer_cells_obj <- subset(astro_obj, seurat_clusters %in% c(3, 4, 6))
+
+(g2 <- FeaturePlot(cancer_cells_obj, features = c("D6_CNA_value", "MYC"), blend = TRUE, label = TRUE))
 
 
-
-
-## CNV estimation? - https://www.nature.com/articles/s41467-019-13779-x
-# https://statbiomed.github.io/SingleCell-Workshop-2021/CNV-analysis.html
-
-
-
-
-
+ggsave("output/Venteicher_scRNAseq/1.all_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf", g1, width = 12, height = 4)
+ggsave("output/Venteicher_scRNAseq/1.cancer_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf", g2, width = 12, height = 4)
 
 
 # coexpr.  MYC + microdel genes -------------------------------------------
-del_peak_genes <- read.delim("output/PMN_neg_analysis/del19q_samples_GISTIC/del_genes.conf_90.txt", skip = 3)
+del_peak_genes <- read.delim("output/PMN_neg_analysis/all_GISTIC_res/microdel19q/del_genes.conf_90.txt", skip = 3)
 gset <- del_peak_genes$chr19.54940787.57124931
 gset <- gset[gset != ""]
 
@@ -121,7 +146,7 @@ dev.off()
 
 # score gene set ----------------------------------------------------------
 gset_custom <- new("Annot",
-                   species = "mouse", 
+                   species = "human", 
                    anntype = "custom", 
                    keytype = "SYMBOL", 
                    annot = data.frame(GeneID = gset,
@@ -129,7 +154,7 @@ gset_custom <- new("Annot",
                                       Annot = "microdel_19q13.43"))
 
 set.seed(123)
-res <- scgsva(astro_obj, gset_custom, cores = 10)
+res <- scgsva(as.ma, gset_custom, cores = 10)
 
 astro_obj <- AddMetaData(astro_obj, res@gsva)
 

@@ -27,5 +27,5 @@
 4. [Determine deletion status for the 19q13.43 peak identified by GISTIC in all samples](scripts/4.microdeletion_analysis/4.D6_in_all_samples.R)
 5. [Demonstrate colocalization of lower CNA value/decreased microdel19q genes + increased MYC expression](scripts/4.microdeletion_analysis/5.scRNAseq.R)
 6. [Prepare input for and run SigProfilerMatrixGenerator](scripts/4.microdeletion_analysis/6.CN_profiles.R)
-7. [Generate CNV matrices and plot profiles](scripts/4.microdeletion_analysis/7.CNV_matrix_generation.R)
+7. [Generate CNV matrix and plot profiles](scripts/4.microdeletion_analysis/7.CNV_matrix_generation.R)
 8. [Cluster samples based on CNV profles](scripts/4.microdeletion_analysis/8.cluster_based_on_CN_profiles.R)

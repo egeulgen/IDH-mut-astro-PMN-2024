@@ -18,3 +18,5 @@ colnames(final_ASCAT_df) <- c("sample", "chromosome", "startpos", "endpos","nMaj
 final_ASCAT_df$sample <- substr(final_ASCAT_df$sample, 1, 12)
 
 write.table(final_ASCAT_df, "data/TCGA_ASCAT.tsv", row.names = FALSE, quote = FALSE, sep = "\t")
+
+# poetry run python scripts/4.microdeletion_analysis/7.CNV_matrix_generation.py

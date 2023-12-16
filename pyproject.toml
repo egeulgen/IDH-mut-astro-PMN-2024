@@ -11,6 +11,8 @@ python = "^3.11"
 openpyxl = "^3.1.2"
 SigProfilerMatrixGenerator = "^1.2.20"
 sigprofilerplotting = "^1.3.18"
+sigprofilerassignment = "^0.1.0"
+setuptools = "^69.0.2"
 
 
 [build-system]

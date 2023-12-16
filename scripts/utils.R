@@ -180,3 +180,13 @@ plot_cat <- function(df, var1, var2 = "PMN_hit", val = NULL,
     }
     p
 }
+
+#' Calculate RMSE between Two Vectors
+#'
+#' @param v1 numeric vector 1 
+#' @param v2 numeric vector 2
+#'
+#' @return the root mean squared error between two numeric vectors
+RMSE <- function(v1, v2){
+    return(sqrt(mean((v1 - v2) ^ 2)))
+}

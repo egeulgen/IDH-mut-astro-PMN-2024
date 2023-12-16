@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "pmn-latest"
+version = "0.1.0"
+description = "python dependencies for PMN analysis"
+authors = ["egeulgen <egeulgen@gmail.com>"]
+readme = "README.md"
+packages = [{include = "pmn_latest"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+openpyxl = "^3.1.2"
+SigProfilerMatrixGenerator = "^1.2.20"
+sigprofilerplotting = "^1.3.18"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

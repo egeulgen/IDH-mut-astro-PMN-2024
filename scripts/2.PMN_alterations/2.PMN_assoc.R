@@ -78,16 +78,36 @@ ggarrange(g1, g_MGMT, g_Telomere , labels = LETTERS[1:3], font.label = list(face
 dev.off()
 
 # grade -------------------------------------------------------------------
-g_grade_PMN <- plot_cat(df = metadata_df, var1 = "mol_grade", x_lbl = "Grade")
-g_grade_MYC <- plot_cat(df = metadata_df, var1 = "mol_grade", x_lbl = "Grade", var2 = "MYC_amp",
-                        y_lbl = "MYC amplification", fisher_position = 3.350352)
-g_grade_para <- plot_cat(df = metadata_df, var1 = "mol_grade", x_lbl = "Grade", var2 = "MYC_paralog_amp",
-                         y_lbl = "MYC paralog amplification", fisher_position = 3.134271)
+tbl <- table(metadata_df$mol_grade, metadata_df$PMN_hit)
 
-pdf("output/11.PMN_grade_assoc.pdf", width = 7, height = 7)
-ggarrange(g_grade_PMN, g_grade_MYC, g_grade_para, labels = LETTERS[1:3], font.label =  list(face = "bold", size = 20))
-dev.off()
+perc_df <- round(tbl / rowSums(tbl), 4)
+perc_df <- as.data.frame(perc_df)
+perc_df <- perc_df[perc_df$Var2 == "hit", ]
 
+p <- ggplot(perc_df, aes(y = Freq, x = Var1, fill = Var1))
+p <- p + geom_bar(stat = "identity", position = "stack", aes(color = Var1))
+p <- p + geom_text(aes(label = paste0(Freq * 100, "%"), fontface = 2),
+                   position = position_stack(vjust = 0.5), size = 4, color = "white")
+p <- p + geom_text(label = paste0("Cochran-Armitage Test for Trend,\np = ", round(DescTools::CochranArmitageTest(t(tbl), alternative = "one.sided")$p.value, 3)),
+                   size = 3, position = position_stack(vjust = 1.45),
+                   data = perc_df[perc_df$Var1 == perc_df$Var1[1], ])
+p <- p + ggsci::scale_fill_lancet()
+p <- p + ggsci::scale_color_lancet()
+p <- p + ylab("PMN hit %")
+p <- p + xlab("Grade")
+p <- p + scale_y_continuous(breaks = seq(0, 1, 0.1), limits = c(0, 1),
+                            labels = scales::percent_format(accuracy = 1),
+                            expand = c(0, 0))
+p <- p + theme_minimal()
+p <- p + theme(
+    legend.position = "none",
+    axis.text = element_text(size = 11),
+    axis.title.y = element_text(face = "bold", size = 14),
+    axis.title.x = element_text(face = "bold", size = 14)
+)
+p 
+
+ggsave("output/11.PMN_grade_assoc.pdf", p, width = 7, height = 7)
 
 # burden - overall --------------------------------------------------------
 range(metadata_df$snv_burden)

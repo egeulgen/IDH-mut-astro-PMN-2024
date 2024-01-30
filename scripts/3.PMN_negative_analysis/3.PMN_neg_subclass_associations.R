@@ -85,20 +85,20 @@ perc_df <- as.data.frame(perc_df)
 perc_df <- perc_df[perc_df$Freq != 0, ]
 
 p <- ggplot(perc_df, aes(y = Freq, x = Var1, fill = Var2))
-p <- p + geom_bar(stat = "identity", position = "stack", aes(color = Var2))
-p <- p + geom_text(aes(label = paste0(Freq * 100, "%")),
+g11 <- g11 + geom_bar(stat = "identity", position = "stack", aes(color = Var2))
+g11 <- g11 + geom_text(aes(label = paste0(Freq * 100, "%")),
                    position = position_stack(vjust = 0.5), size = 4, color = "white")
-p <- p + geom_text(label = paste0("Fisher's Exact,\np = ", round(fisher.test(tbl)$p.value, 3)),
+g11 <- g11 + geom_text(label = paste0("Fisher's Exact,\np = ", round(fisher.test(tbl)$p.value, 3)),
                    size = 3, position = position_stack(vjust = 1),
                    data = perc_df[perc_df$Var1 == perc_df$Var1[2], ][1, ])
-p <- p + ggsci::scale_fill_lancet()
-p <- p + ggsci::scale_color_lancet()
-p <- p + xlab("Molecular Grade")
-p <- p + scale_y_continuous(breaks = seq(0, 1, 0.25),
+g11 <- g11 + ggsci::scale_fill_lancet()
+g11 <- g11 + ggsci::scale_color_lancet()
+g11 <- g11 + xlab("Molecular Grade")
+g11 <- g11 + scale_y_continuous(breaks = seq(0, 1, 0.25),
                             labels = scales::percent_format(accuracy = 1),
                             expand = c(0, 0))
-p <- p + theme_minimal()
-p <- p + theme(legend.title = element_blank(),
+g11 <- g11 + theme_minimal()
+g11 <- g11 + theme(legend.title = element_blank(),
                axis.text = element_text(size = 11),
                axis.title.x = element_text(face = "bold", size = 14),
                axis.title.y = element_blank())
@@ -217,36 +217,32 @@ g10
 
 
 ### CT
-plot_cat <- function(df = metadata_df, var1, var2 = "PMN_hit", val = "hit", x_lbl, y_lbl = "PMN Hit", y_lims = c(0, 1), incr = 0.1) {
-    tbl <- table(df[, var1], df[, var2])
-    
-    perc_df <- round(tbl / rowSums(tbl), 4)
-    perc_df <- as.data.frame(perc_df)
-    
-    perc_df <- perc_df[perc_df$Var2 == val, ]
-    
-    p <- ggplot(perc_df, aes(y = Freq, x = Var1, fill = Var1))
-    p <- p + geom_bar(stat = "identity", position = "stack", aes(color = Var1))
-    p <- p + geom_text(aes(label = paste0(Freq * 100, "%")),
-                       position = position_stack(vjust = 0.5), size = 4, color = "white")
-    p <- p + geom_text(label = paste0("Fisher's exact,\np = ", round(fisher.test(tbl)$p.value, 3)),
-                       size = 3, position = position_stack(vjust = 1),
-                       data = perc_df[perc_df$Var1 == perc_df$Var1[2], ])
-    p <- p + ggsci::scale_fill_lancet()
-    p <- p + ggsci::scale_color_lancet()
-    p <- p + ylab(y_lbl) + xlab(x_lbl)
-    p <- p + scale_y_continuous(breaks = seq(0, 1, incr), limits = y_lims,
-                                labels = scales::percent_format(accuracy = 1),
-                                expand = c(0, 0))
-    p <- p + theme_minimal()
-    p <- p + theme(legend.position = "none",
-                   axis.text = element_text(size = 11),
-                   axis.title.y = element_text(face = "bold", size = 14),
-                   axis.title.x = element_blank())
-    p
-}
+tbl <- table(metadata_df$class, metadata_df$CT)
 
-g11 <- plot_cat(df = metadata_df, var1 = "class", var2 = "CT", val = "CT+", x_lbl = "", y_lbl = "% with Chromothripsis", y_lims = c(0, .5), incr = 0.05)
+perc_df <- round(tbl / rowSums(tbl), 4)
+perc_df <- as.data.frame(perc_df)
+
+perc_df <- perc_df[perc_df$Var2 == "CT+", ]
+
+g11 <- ggplot(perc_df, aes(y = Freq, x = Var1, fill = Var1))
+g11 <- g11 + geom_bar(stat = "identity", position = "stack", aes(color = Var1))
+g11 <- g11 + geom_text(aes(label = paste0(Freq * 100, "%")),
+                   position = position_stack(vjust = 0.5), size = 4, color = "white")
+g11 <- g11 + geom_text(label = paste0("Cochran-Armitage Test for Trend,\np = ", round(DescTools::CochranArmitageTest(t(tbl), alternative = "one.sided")$p.value, 3)),
+                   size = 3, position = position_stack(vjust = 1),
+                   data = perc_df[perc_df$Var1 == perc_df$Var1[2], ])
+g11 <- g11 + ggsci::scale_fill_lancet()
+g11 <- g11 + ggsci::scale_color_lancet()
+g11 <- g11 + ylab("% with Chromothripsis") + xlab("")
+g11 <- g11 + scale_y_continuous(breaks = seq(0, 1, 0.05), limits = c(0, .5),
+                            labels = scales::percent_format(accuracy = 1),
+                            expand = c(0, 0))
+g11 <- g11 + theme_minimal()
+g11 <- g11 + theme(legend.position = "none",
+               axis.text = element_text(size = 11),
+               axis.title.y = element_text(face = "bold", size = 14),
+               axis.title.x = element_blank())
+g11
 
 g_comb2 <- ggarrange(g6, g7, g8, g9, g10, g11, labels = LETTERS[3:8], font.label = list(size = 20, face = "bold"))
 

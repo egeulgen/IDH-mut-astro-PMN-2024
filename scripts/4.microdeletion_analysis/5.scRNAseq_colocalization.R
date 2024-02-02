@@ -1,7 +1,7 @@
 ##### Script purpose: Demonstrate colocalization decreased microdel19q genes + increased MYC expression
 ## using scRNAseq data (Venteicher et al. 2017 - GSE89567) 
 ##### Author: Ege Ulgen
-##### Date: Dec 2023
+##### Date: Feb 2023
 
 library(Seurat)
 library(ggplot2)
@@ -33,8 +33,6 @@ astro_obj <- CreateSeuratObject(counts = counts_mat,
                                 meta.data = meta_df,
                                 names.field = 1, names.delim = "\\.")
 
-saveRDS(astro_obj, "data/Venteicher_scRNAseq/seurat_obj.RDS")
-
 # process seurat object ---------------------------------------------------
 astro_obj[["percent.mt"]] <- PercentageFeatureSet(astro_obj, pattern = "^MT-")
 astro_obj <- subset(astro_obj, subset = nFeature_RNA > 200 & nFeature_RNA < 5000 & percent.mt < 10)
@@ -47,7 +45,7 @@ astro_obj <- RunUMAP(astro_obj, reduction = "pca", dims = 1:30)
 astro_obj <- FindNeighbors(astro_obj, reduction = "pca", dims = 1:30)
 astro_obj <- FindClusters(astro_obj, reduction = "pca", resolution = 0.5)
 
-g <- DimPlot(astro_obj, label = TRUE)
+(g <- DimPlot(astro_obj, label = TRUE))
 ggsave("output/Venteicher_scRNAseq/dimPlot.pdf", g, width = 5, height = 5)
 
 # cell type ann ------------------------------------------------------------
@@ -92,7 +90,7 @@ exp.rawdata <- as.matrix(astro_obj[["RNA"]]$counts)
 copykat_res <- copykat(
     rawmat=exp.rawdata, id.type="S", ngene.chr=5, win.size=25, KS.cut=0.1, 
     sam.name="astro", distance="euclidean", norm.cell.names="", 
-    output.seg="FLASE", plot.genes="FALSE", genome="hg20",n.cores=10
+    output.seg="FALSE", plot.genes="FALSE", genome="hg20",n.cores=10
 )
 
 copykat_pred <- data.frame(copykat_res$prediction)
@@ -102,22 +100,28 @@ copykat_CNA<- data.frame(copykat_res$CNAmat)
 copykat_CNA_chr19 <- copykat_CNA[copykat_CNA$chrom == 19, ]
 
 selected_copykat_df <- copykat_CNA_chr19[copykat_CNA_chr19$chrompos >= 54950535 & copykat_CNA_chr19$chrompos <= 56859293, ]
-# heatmap(ifelse(as.matrix(selected_copykat_df[, -c(1:3)]) < 0, -1, 1))
-# selected_copykat_df <- selected_copykat_df[c("10997", "10998", "10999"), ]
 
-D6_ave_copykat <- apply(selected_copykat_df[, -c(1,3)], 1, min)
-astro_obj$D6_CNA_min_value <- D6_ave_copykat[colnames(astro_obj)]
-
-(g1 <- FeaturePlot(astro_obj, features = c("D6_CNA_value", "MYC"), blend = TRUE, label = TRUE))
-
-cancer_cells_obj <- subset(astro_obj, seurat_clusters %in% c(3, 4, 6))
-
-(g2 <- FeaturePlot(cancer_cells_obj, features = c("D6_CNA_value", "MYC"), blend = TRUE, label = TRUE))
+# D6_ave_copykat <- apply(selected_copykat_df[, -c(1:3)], 2, mean)
+# astro_obj$D6_CNA_aggregate_value <- D6_ave_copykat[colnames(astro_obj)]
 
 
-ggsave("output/Venteicher_scRNAseq/1.all_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf", g1, width = 12, height = 4)
-ggsave("output/Venteicher_scRNAseq/1.cancer_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf", g2, width = 12, height = 4)
+overall_list <- list()
+cancer_cells_list <- list()
+for (i in seq_len(nrow(selected_copykat_df))) {
+    region <- paste0(selected_copykat_df$chrom[i], ":", selected_copykat_df$chrompos[i])
+    
+    astro_obj[[region]] <- as.numeric(selected_copykat_df[i, colnames(astro_obj)])
+    cancer_cells_obj <- subset(astro_obj, seurat_clusters %in% c(3, 4, 6))
+    
+    overall_list[[region]] <- FeaturePlot(astro_obj, features = c(region, "MYC"), blend = TRUE, label = TRUE)
+    cancer_cells_list[[region]] <- FeaturePlot(cancer_cells_obj, features = c(region, "MYC"), blend = TRUE, label = TRUE)
+}
+    
+g1 <- ggpubr::ggarrange(plotlist = overall_list, ncol = 1)
+g2 <- ggpubr::ggarrange(plotlist = cancer_cells_list, ncol = 1)
 
+ggsave("output/Venteicher_scRNAseq/1.all_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf", g1, width = 12, height = 25)
+ggsave("output/Venteicher_scRNAseq/2.cancer_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf", g2, width = 12, height = 25)
 
 # coexpr.  MYC + microdel genes -------------------------------------------
 del_peak_genes <- read.delim("output/PMN_neg_analysis/all_GISTIC_res/microdel19q/del_genes.conf_90.txt", skip = 3)

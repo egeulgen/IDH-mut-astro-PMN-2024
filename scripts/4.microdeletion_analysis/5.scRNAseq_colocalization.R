@@ -149,6 +149,10 @@ copykat_CNA <- data.frame(copykat_res$CNAmat)
 copykat_CNA_chr19 <- copykat_CNA[copykat_CNA$chrom == 19, ]
 selected_copykat_df <- copykat_CNA_chr19[copykat_CNA_chr19$chrompos >= 54950535 & copykat_CNA_chr19$chrompos <= 56859293, ]
 
+
+## using keep.scale = “feature” (default; by row/feature scaling) for the blended feature plots: 
+# The plots for each individual feature are scaled to the maximum expression of 
+# the feature across the conditions provided to split.by
 overall_list <- list()
 cancer_cells_list <- list()
 for (i in seq_len(nrow(selected_copykat_df))) {

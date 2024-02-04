@@ -7,8 +7,8 @@
 data/TCGA-LGG/
 manuscript_related/
 MANIFEST.txt
-scripts/tools
 data/Venteicher_scRNAseq
 data/all_primary_complete
 data/selected_data
 pre_Jan30_24
+tools/

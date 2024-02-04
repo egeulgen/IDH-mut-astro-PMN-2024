@@ -4,17 +4,21 @@
 ##### Date: Feb 2023
 
 library(Seurat)
-library(ggplot2)
+library(clustree)
 library(copykat)
 library(scGSVA)
+library(ggplot2)
 
-dir.create("output/Venteicher_scRNAseq", showWarnings = FALSE)
+source("scripts/utils.R")
+
+output_dir <- "output/Venteicher_scRNAseq"
+dir.create(output_dir, showWarnings = FALSE)
 
 # create seurat object ----------------------------------------------------
 counts_mat <- read.delim("data/Venteicher_scRNAseq/GSE89567_IDH_A_processed_data.txt.gz", row.names = 1)
 samples_df <- read.csv("data/Venteicher_scRNAseq/metadata.csv")
 
-# fix dimnames
+# fix dim. names
 rownames(counts_mat) <- gsub("'", "", rownames(counts_mat))
 colnames(counts_mat) <- gsub("_", "\\.", colnames(counts_mat))
 colnames(counts_mat) <- sub("X57", "MGH57", colnames(counts_mat))
@@ -43,67 +47,107 @@ astro_obj <- ScaleData(astro_obj, verbose = FALSE)
 astro_obj <- RunPCA(astro_obj, npcs = 30, verbose = FALSE)
 astro_obj <- RunUMAP(astro_obj, reduction = "pca", dims = 1:30)
 astro_obj <- FindNeighbors(astro_obj, reduction = "pca", dims = 1:30)
-astro_obj <- FindClusters(astro_obj, reduction = "pca", resolution = 0.5)
+
+
+# cluster cells -----------------------------------------------------------
+# cluster cells at different resolutions
+astro_obj <- FindClusters(
+    astro_obj, 
+    reduction = "pca", 
+    dims = 1:30,
+    resolution = seq(0.1, 2, 0.1), 
+    algorithm = 1
+)
+
+# The stability index from the SC3 package (Kiselev et al. 2017) measures the 
+# stability of clusters across resolutions. The stability index is automatically 
+# calculated when a clustering tree is built. Note that each level of clustering 
+# corresponds to a different resolution.
+clustering_prefix <- "RNA_snn_res."
+g_clustree <- clustree(astro_obj, prefix = clustering_prefix, node_colour = "sc3_stability")
+ggsave(file.path(output_dir, "1.clustering_tree.pdf"), g_clustree, width = 8, height = 12)
+
+# ad-hoc decision to set final cluster resolution to 0.6 upon visual inspection
+final_cluster_resolution <- 0.6
+Idents(astro_obj) <- paste0(clustering_prefix, final_cluster_resolution)
 
 (g <- DimPlot(astro_obj, label = TRUE))
-ggsave("output/Venteicher_scRNAseq/dimPlot.pdf", g, width = 5, height = 5)
+ggsave(
+    file.path(output_dir, "2.clustered_umap_plot.pdf"), g, width = 5, height = 5
+)
 
-# cell type ann ------------------------------------------------------------
-## cell type annot. - https://www.frontiersin.org/articles/10.3389/fgene.2020.00490/full
-# https://github.com/bioinfo-ibms-pumc/SCSA
+# cell type annotation of clusters ----------------------------------------
+## cell type annotation using SCSA
+# GitHub repo: https://github.com/bioinfo-ibms-pumc/SCSA
+# Article for the method: https://www.frontiersin.org/articles/10.3389/fgene.2020.00490/full
+
+#### installation of SCSA 
+#### (this is done through the command line)
+#### As the required python environment that contains the dependencies has been 
+#### set up using `renv`, there is no need to install those
+#### in your terminal, run the following to clone the SCSA repository before use:
+## $ mkdir tools && cd tools/
+## $ git clone https://github.com/bioinfo-ibms-pumc/SCSA.git
+
 all_markers <- FindAllMarkers(astro_obj)
+# need to change the logFC column name to the one expected by SCSA
 colnames(all_markers)[colnames(all_markers) == "avg_log2FC"] <- "avg_logFC"
-write.csv(all_markers, "scripts/tools/SCSA/all_markers.csv", row.names = FALSE)
+all_markers_file <- file.path(output_dir, "all_markers.csv")
+write.csv(all_markers, all_markers_file, row.names = FALSE)
 
-# run SCSA
-# cd scripts/tools/SCSA/
-# poetry run python SCSA.py -d whole_v2.db -s seurat -i all_markers.csv -k All --Gensymbol -g Human -f 1 -p 0.01 --celltype cancer
-# #Cluster Type Celltype Score Times
-# ['0', 'Good', 'Macrophage', 10.360214672412098, 2.1633211942646833]
-# ['1', '?', 'Fibroblast|Endothelial cell', '8.032428474469345|5.405594317546298', 1.4859473357807245]
-# ['2', 'Good', 'Macrophage', 9.670698887642029, 2.031690502450226]
-# ['3', '?', 'Cancer stem cell|Fibroblast', '6.388510769882183|3.2755558467200254', 1.950359288265322]
-# ['4', '?', 'Cancer stem cell|Cancer cell', '6.66028175074541|4.243321611549725', 1.5695915512548138]
-# ['5', 'Good', 'Macrophage', 9.39813692025507, 2.159848668014317]
-# ['6', '?', 'Cancer stem cell|Mesenchymal cell', '5.967879826481657|4.072912594859697', 1.465260961900715]
-# ['7', 'Good', 'Macrophage', 8.18091535385208, 2.2778441249043335]
-# ['8', 'Good', 'Oligodendrocyte', 7.137451774667723, 2.01133816178245]
+# thresholds for marker filtering 
+foldchange_threshold <- 1
+pvalue_threshold <- 0.01
 
-# poetry run python SCSA.py -d whole_v2.db -s seurat -i all_markers.csv -k All --Gensymbol -g Human -f 1 -p 0.01
-# #Cluster Type Celltype Score Times
-# ['0', '?', 'Microglial cell|Macrophage', '14.788337801684538|10.055857271520885', 1.4706193020028708]
-# ['1', '?', 'Endothelial cell|Neuron', '10.884506391810927|8.507236881011398', 1.2794408506604207]
-# ['2', '?', 'Microglial cell|Monocyte', '12.50486863098912|11.297462144054583', 1.1068741343444066]
-# ['3', '?', 'Astrocyte|Oligodendrocyte', '7.171877977081825|6.644286468735449', 1.0794052921753068]
-# ['4', '?', 'Neuron|Astrocyte', '11.74834475429808|7.183710734902439', 1.635414507605119]
-# ['5', '?', 'Monocyte|Macrophage', '13.168146304774416|11.636039162420976', 1.131669129071122]
-# ['6', 'Good', 'Astrocyte', 17.349134067736852, 8.227337010561945]
-# ['7', '?', 'Microglial cell|Macrophage', '13.132553406797685|9.373210345126887', 1.4010731567146866]
-# ['8', 'Good', 'Oligodendrocyte', 14.515628975024633, 6.069562588017648]
+python_script_path <- "tools/SCSA/SCSA.py"
+common_arguments <- c(
+    paste0("--input ", all_markers_file), 
+    "--db tools/SCSA/whole_v2.db", 
+    "--source seurat", 
+    "--tissue All", 
+    "--Gensymbol", 
+    "--species Human",
+    paste0("--foldchange ", foldchange_threshold),
+    paste0("--pvalue ", pvalue_threshold)
+)
 
-cluster_type_vec <- c("0" = "Normal cell", "1" = "Normal cell", "2" = "Normal cell", "3" = "Cancer cell", "4" = "Cancer cell",
-                      "5"= "Normal cell", "6" = "Cancer cell", "7" = "Normal cell", "8" = "Cancer cell")
+cancer_annot_command <- paste(c("python", python_script_path, c(common_arguments, "--celltype cancer")), collapse = " ")
+normal_annot_command <- paste(c("python", python_script_path, c(common_arguments, "--celltype normal")), collapse = " ")
+
+SCSA_cancer_annotation <- system(cancer_annot_command, intern = TRUE)
+SCSA_normal_annotation <- system(normal_annot_command, intern = TRUE)
+
+(cluster_annot_cancer_types <- parse_SCSA_annotation_from_stdout(SCSA_cancer_annotation))
+cluster_annot_normal_types <- parse_SCSA_annotation_from_stdout(SCSA_normal_annotation)
+
+basic_cluster_type_vec <- ifelse(grepl("cancer", cluster_annot_cancer_types$Celltype, ignore.case = TRUE), "Cancer Cell", "Normal Cell")
+names(basic_cluster_type_vec) <- cluster_annot_cancer_types$Cluster
+
+normal_clusters <- names(basic_cluster_type_vec)[basic_cluster_type_vec == "Normal Cell"]
+cancer_clusters <- names(basic_cluster_type_vec)[basic_cluster_type_vec == "Cancer Cell"]
 
 # CNV estimation ----------------------------------------------------------
 exp.rawdata <- as.matrix(astro_obj[["RNA"]]$counts)
+normal_cell_names <- names(Idents(astro_obj))[Idents(astro_obj) %in% normal_clusters]
 
 copykat_res <- copykat(
-    rawmat=exp.rawdata, id.type="S", ngene.chr=5, win.size=25, KS.cut=0.1, 
-    sam.name="astro", distance="euclidean", norm.cell.names="", 
-    output.seg="FALSE", plot.genes="FALSE", genome="hg20",n.cores=10
+    rawmat = exp.rawdata,
+    id.type = "S", 
+    ngene.chr = 5, 
+    win.size = 25, 
+    KS.cut = 0.1, 
+    sam.name = "astro", 
+    distance = "euclidean", 
+    norm.cell.names = normal_cell_names, 
+    output.seg = FALSE, 
+    plot.genes = FALSE, 
+    genome = "hg20",
+    n.cores = 10
 )
 
-copykat_pred <- data.frame(copykat_res$prediction)
-copykat_pred <- copykat_pred[copykat_pred$copykat.pred != "not.defined", ]  ##remove undefined cells
-
-copykat_CNA<- data.frame(copykat_res$CNAmat)
+copykat_CNA <- data.frame(copykat_res$CNAmat)
 copykat_CNA_chr19 <- copykat_CNA[copykat_CNA$chrom == 19, ]
-
 selected_copykat_df <- copykat_CNA_chr19[copykat_CNA_chr19$chrompos >= 54950535 & copykat_CNA_chr19$chrompos <= 56859293, ]
-
-# D6_ave_copykat <- apply(selected_copykat_df[, -c(1:3)], 2, mean)
-# astro_obj$D6_CNA_aggregate_value <- D6_ave_copykat[colnames(astro_obj)]
-
 
 overall_list <- list()
 cancer_cells_list <- list()
@@ -111,7 +155,7 @@ for (i in seq_len(nrow(selected_copykat_df))) {
     region <- paste0(selected_copykat_df$chrom[i], ":", selected_copykat_df$chrompos[i])
     
     astro_obj[[region]] <- as.numeric(selected_copykat_df[i, colnames(astro_obj)])
-    cancer_cells_obj <- subset(astro_obj, seurat_clusters %in% c(3, 4, 6))
+    cancer_cells_obj <- subset(astro_obj, idents = cancer_clusters)
     
     overall_list[[region]] <- FeaturePlot(astro_obj, features = c(region, "MYC"), blend = TRUE, label = TRUE)
     cancer_cells_list[[region]] <- FeaturePlot(cancer_cells_obj, features = c(region, "MYC"), blend = TRUE, label = TRUE)
@@ -120,15 +164,15 @@ for (i in seq_len(nrow(selected_copykat_df))) {
 g1 <- ggpubr::ggarrange(plotlist = overall_list, ncol = 1)
 g2 <- ggpubr::ggarrange(plotlist = cancer_cells_list, ncol = 1)
 
-ggsave("output/Venteicher_scRNAseq/1.all_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf", g1, width = 12, height = 25)
-ggsave("output/Venteicher_scRNAseq/2.cancer_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf", g2, width = 12, height = 25)
+ggsave(file.path(output_dir, "3.all_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf"), g1, width = 12, height = 25)
+ggsave(file.path(output_dir, "4.cancer_cells_D6_CNA_value_vs_MYC_expr_colocalization.pdf"), g2, width = 12, height = 25)
 
 # coexpr.  MYC + microdel genes -------------------------------------------
 del_peak_genes <- read.delim("output/PMN_neg_analysis/all_GISTIC_res/microdel19q/del_genes.conf_90.txt", skip = 3)
 gset <- del_peak_genes$chr19.54940787.57124931
 gset <- gset[gset != ""]
 
-pdf("output/Venteicher_scRNAseq/MYC_and_del19q13.43_genes.pdf", width = 12, height = 4)
+pdf(file.path(output_dir,"MYC_and_del19q13.43_genes.pdf"), width = 12, height = 4)
 for (gene in gset) {
     res <- tryCatch({
         plot(FeaturePlot(astro_obj, features = c(gene, "MYC"), blend = TRUE, label = TRUE))
@@ -138,8 +182,8 @@ for (gene in gset) {
 dev.off()
 
 
-pdf("output/Venteicher_scRNAseq/MYC_and_del19q13.43_genes_clu6.pdf", width = 12, height = 4)
-clu6_obj <- subset(astro_obj, subset = seurat_clusters == 6)
+pdf(file.path(output_dir, "MYC_and_del19q13.43_genes_cancer_clus.pdf"), width = 12, height = 4)
+clu6_obj <- subset(astro_obj, idents = cancer_clusters)
 for (gene in gset) {
     res <- tryCatch({
         plot(FeaturePlot(clu6_obj, features = c(gene, "MYC"), blend = TRUE, label = TRUE))
@@ -158,15 +202,15 @@ gset_custom <- new("Annot",
                                       Annot = "microdel_19q13.43"))
 
 set.seed(123)
-res <- scgsva(as.ma, gset_custom, cores = 10)
+res <- scgsva(as.matrix(counts_mat), gset_custom, cores = 10)
 
 astro_obj <- AddMetaData(astro_obj, res@gsva)
 
-pdf("output/Venteicher_scRNAseq/MYC_and_PMNneg_gene_set.pdf", width = 12, height = 4)
+pdf(file.path(output_dir, "MYC_and_PMNneg_gene_set.pdf"), width = 12, height = 4)
 FeaturePlot(astro_obj, features = c("microdel_19q13.43", "MYC"), blend = TRUE, label = TRUE)
 dev.off()
 
-pdf("output/Venteicher_scRNAseq/by_clu_MYC_and_PMNneg_gene_set.pdf", width = 12, height = 4)
+pdf(file.path(output_dir, "by_clu_MYC_and_PMNneg_gene_set.pdf"), width = 12, height = 4)
 for (clu_idx in 0:8) {
     clu_obj <- subset(astro_obj, subset = seurat_clusters == clu_idx)
     res <- tryCatch({

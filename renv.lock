@@ -334,6 +334,25 @@
       ],
       "Hash": "e9e53a559ef99e0c02bc2f9a944f0bee"
     },
+    "GEOquery": {
+      "Package": "GEOquery",
+      "Version": "2.70.0",
+      "Source": "Bioconductor",
+      "Requirements": [
+        "Biobase",
+        "R.utils",
+        "curl",
+        "data.table",
+        "dplyr",
+        "limma",
+        "magrittr",
+        "methods",
+        "readr",
+        "tidyr",
+        "xml2"
+      ],
+      "Hash": "58fcaef94e52f4d6053eb4f8fd4a479d"
+    },
     "GO.db": {
       "Package": "GO.db",
       "Version": "3.18.0",

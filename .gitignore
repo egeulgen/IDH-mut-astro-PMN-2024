@@ -7,7 +7,7 @@
 data/TCGA-LGG/
 manuscript_related/
 MANIFEST.txt
-data/Venteicher_scRNAseq
+data/Venteicher_scRNAseq_data/GSE89567/GSE89567_IDH_A_processed_data.txt.gz
 data/all_primary_complete
 data/selected_data
 pre_Jan30_24

@@ -1,0 +1,9 @@
+﻿Designation,Age,Gender,Location,Grade,Clinical IDH1 result,Clinical genetics result,Clinical FISH result,Previous treatment,IDH1 mutation,Integrated WHO 2016 diagnosis
+MGH42,47,female,left parietal,WHO III,R132H mutation,"IDH1 R132H, p53 R273C, APC S966G","19q loss, 1p retained",none,R132H,IDH1 mutant anaplastic astrocytoma
+MGH43,45,male,right temporal,WHO III,R132H mutation,"IDH1 R132H, p53 V157F",1p/19q retained,"resection, radiation, temazolamide",R132H,"IDH1 mutant anaplastic astrocytoma, recurrent"
+MGH44,32,male,right frontal,WHO III,R132H mutation,not performed,1p/19q retained,none,R132H,IDH1 mutant anaplastic astrocytoma
+MGH56,31,male,left parietal,WHO III,R132H mutation,not performed,1p/19q retained,none,R132H,IDH1 mutant anaplastic astrocytoma
+MGH61,24,male,right frontal,WHO III,R132H mutation,not performed,"19q loss, 1p retained",none,R132H,IDH1 mutant anaplastic astrocytoma
+MGH64,40,female,left frontoparietal,WHO III,R132H mutation,"IDH1 R132H, p53 R213X and R306X, PIK3CA R88Q",1p/19q retained,none,R132H,IDH1 mutant anaplastic astrocytoma
+MGH103,26,female,left parietal,WHO III,R132H mutation,"IDH1 R132H, p53 C299R",not performed,none,R132H,IDH1 mutant anaplastic astrocytoma
+MGH107,47,female,right frontal,WHO II,R132H mutation,"IDH1 R132H, p53 T582M, ATRX F2113 frameshift, BRCA1 T582M",not performed,none,R132H,IDH1 mutant diffuse astrocytoma

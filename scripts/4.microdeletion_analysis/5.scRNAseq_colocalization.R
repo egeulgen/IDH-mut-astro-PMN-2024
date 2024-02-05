@@ -3,6 +3,7 @@
 ##### Author: Ege Ulgen
 ##### Date: Feb 2023
 
+library(GEOquery)
 library(Seurat)
 library(clustree)
 library(copykat)
@@ -14,9 +15,23 @@ source("scripts/utils.R")
 output_dir <- "output/Venteicher_scRNAseq"
 dir.create(output_dir, showWarnings = FALSE)
 
+# get data from GEO -------------------------------------------------------
+# GSE89567: IDH-mutant astrocytoma tumors, 6341 cells from 10 tumors
+# Venteicher AS, Tirosh I, Hebert C, Yizhak K et al. Decoupling genetics, lineages, 
+# and microenvironment in IDH-mutant gliomas by single-cell RNA-seq. Science 
+# 2017 Mar 31;355(6332). PMID: 28360267
+data_dir <- "data/Venteicher_scRNAseq_data"
+dir.create(data_dir, showWarnings = FALSE)
+
+data_path <- getGEOSuppFiles(
+    GEO = "GSE89567",
+    baseDir = data_dir
+)
+
 # create seurat object ----------------------------------------------------
-counts_mat <- read.delim("data/Venteicher_scRNAseq/GSE89567_IDH_A_processed_data.txt.gz", row.names = 1)
-samples_df <- read.csv("data/Venteicher_scRNAseq/metadata.csv")
+counts_mat <- read.delim(rownames(data_path), row.names = 1)
+# meta data extracted from Table S1 from Venteicher et al. - https://www.science.org/doi/10.1126/science.aai8478#supplementary-materials 
+samples_df <- read.csv(file.path(data_dir, "metadata.csv"))
 
 # fix dim. names
 rownames(counts_mat) <- gsub("'", "", rownames(counts_mat))

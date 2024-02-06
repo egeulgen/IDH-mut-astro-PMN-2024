@@ -1,6 +1,6 @@
 ##### Script purpose: Obtain and filter for primary LGG samples with complete data (mutation + SCNA + RNAseq) and classify acc. to IDH/codel
 ##### Author: Ege Ulgen
-##### Date: Dec 2023
+##### Date: 10 Dec 2023
 
 library(TCGAbiolinks)
 library(SummarizedExperiment)

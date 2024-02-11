@@ -27,6 +27,7 @@ del_peak_genes <- read.delim("output/PMN_neg_analysis/all_GISTIC_res/microdel19q
 tmp <- del_peak_genes$chr19.54940787.57124931
 tmp <- tmp[tmp != ""]
 tmp
+cat(tmp, file = "output/PMN_neg_analysis/d6_genes.txt", sep = "\n")
 
 
 sel_expr <- assay(dds_norm[rowData(dds_norm)$gene_name %in% tmp, ])

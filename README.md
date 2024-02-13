@@ -33,14 +33,18 @@ Below is an outline of the analysis steps with links to related scripts:
 3. [Investigate associations of MYC expression level with various factors](scripts/2.PMN_alterations/3.expr_assoc.R)
 
 ### 3. Analysis of PMN-negative tumors with increased MYC expression
-1. [Determine genes associated with increased MYC expression](scripts/3.PMN_negative_analysis/1.PMN_neg_analysis.R)
+1. [Determine altered genes associated with increased MYC expression](scripts/3.PMN_negative_analysis/1.PMN_neg_analysis.R)
 2. [Annotate genes associated with increased MYC expression](scripts/3.PMN_negative_analysis/2.annotate_assoc_genes.R)
-3. [Investigate associations of PMN classes with various factors](scripts/3.PMN_negative_analysis/3.PMN_neg_subclass_associations.R)
-4. [Investigate MYC expression in 19q deleted vs. intact tumors](scripts/3.PMN_negative_analysis/4.del19q_effect.R)
+3. [Analyze SCNA segments overlappping altered genes associated with increased MYC expression to define a Minimal Common Region (MCR)](scripts/3.PMN_negative_analysis/3.define_minimal_common_region.R)
+4. [Investigate MYC expression in 19q deleted vs. intact tumors](scripts/3.PMN_negative_analysis/4.del19q_MYC_comparison.R)
 
-### 4. Further analysis of chr19q microdeletion
-1. [Generate oncoplot for PMN-no hit tumors with the chr19q microdeletion](scripts/4.microdeletion_analysis/1.microdel19q_tumors_oncoplot.R)
-2. [Prepare and save seg files for GISTIC analyses](scripts/4.microdeletion_analysis/2.prep_GISTIC_inputs.R)
-3. [Analyze chr19 peaks identified by GISTIC (on GenePattern) in microdel19q cases](scripts/4.microdeletion_analysis/3.post_GISTIC.R)
-4. [Determine deletion status for the 19q13.43 peak identified by GISTIC in all samples](scripts/4.microdeletion_analysis/4.D6_in_all_samples.R)
-5. [Demonstrate colocalization of lower CNA value (also decreased expression of microdel19q genes) and increased MYC expression in single-cell RNA sequencing experiment](scripts/4.microdeletion_analysis/5.scRNAseq_colocalization.R)
+### 4. Further analysis related to chr19q MCR deletion
+1. [Generate oncoplot for PMN-no hit tumors with the chr19q microdeletion](scripts/4.MCR_analysis/1.MCR_tumors_oncoplot.R)
+2. [Investigate associations of PMN sub-classes with various factors](scripts/4.MCR_analysis/2.MCR_in_all_samples.R)
+3. [Determine deletion status for the 19q MCR in all samples](scripts/4.MCR_analysis/3.subclass_associations.R)
+
+### 5. single-cell RNAseq analysyis
+1. [Obtain Data, create processed Seurat object](scripts/5.scRNAsq_analysis/1.obtain_data_and_process.R)
+2. [Cluster cells and annotate clusters](scripts/5.scRNAsq_analysis/2.cluster_and_annotate_cells.R)
+3. [Estimate copy-number in in (220KB)(play with `win.size`) windows](scripts/5.scRNAsq_analysis/3.estimate_CN.R)
+4. [Visualize CN estimate of MCR window(s)/genes vs. MYC expression in the same cells](scripts/5.scRNAsq_analysis/4.colocalization_visualization.R)

@@ -180,26 +180,3 @@ plot_cat <- function(df, var1, var2 = "PMN_hit", val = NULL,
     }
     p
 }
-
-#' Parse stdout log from SCSA annotation to get annotation table
-#'
-#' @param SCSA_stdout stdout log from SCSA annotation
-#'
-#' @return data frame of cell annotations
-parse_SCSA_annotation_from_stdout <- function(SCSA_stdout) {
-    result_flag <- FALSE
-    columns <- c("Cluster", "Type", "Celltype", "Score", "Times")
-    annot_df <- data.frame() 
-    for (out_line in SCSA_stdout) {
-        if (result_flag) {
-            current_row <- unlist(strsplit(gsub("\\[|\\]|\\'", "", out_line), ", "))
-            annot_df <- rbind(annot_df, current_row)
-        }
-        if (out_line == "#Cluster Type Celltype Score Times") {
-            result_flag <- TRUE
-        }
-    }
-    colnames(annot_df) <- columns
-    return(annot_df)
-}
-

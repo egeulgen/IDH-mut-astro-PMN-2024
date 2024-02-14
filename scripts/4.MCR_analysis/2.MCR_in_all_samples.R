@@ -61,9 +61,8 @@ for (sample_id in all_samples) {
 metadata_df <- readRDS("data/selected_data/meta.RDS")
 metadata_df$microdel_19q13.43 <- metadata_df$patient %in% final_microdel_df$patient_barcode[final_microdel_df$Segment_Mean < -.3]
 
-metadata_df$class <- ifelse(metadata_df$PMN_hit == "hit", "PMN-hit",
-                            ifelse(metadata_df$patient %in% altered_patients, "microdel19q", "WT"))
-metadata_df$class <- factor(metadata_df$class, levels = c("WT", "microdel19q", "PMN-hit"))
+metadata_df$class <- ifelse(metadata_df$PMN_hit == "hit", "PMN-hit", "PMN-no hit")
+metadata_df$class <- factor(metadata_df$class, levels = c("PMN-no hit", "PMN-hit"))
 table(metadata_df$microdel_19q13.43, metadata_df$class)
 
 saveRDS(metadata_df, "data/selected_data/meta.RDS")

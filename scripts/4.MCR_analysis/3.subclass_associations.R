@@ -34,6 +34,8 @@ g
 
 ggsave("output/23.PMNneg_alter_MYC_expr.pdf", g, width = 6, height = 7)
 
+saveRDS(metadata_df, "data/selected_data/meta.RDS")
+
 # OS - KM -----------------------------------------------------------------
 plot_KM_by_class <- function(df, type, title = "") {
     tmp <- df

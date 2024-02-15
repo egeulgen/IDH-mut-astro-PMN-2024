@@ -4,7 +4,6 @@
 
 library(Seurat)
 library(ggplot2)
-library(DescTools)
 library(dplyr)
 library(GenomicRanges)
 library(scGSVA)
@@ -18,47 +17,9 @@ cancer_clusters <- names(basic_cluster_type_vec)[basic_cluster_type_vec == "Canc
 
 copykat_res <- readRDS(file.path(output_dir, "copykat_res.RDS"))
 
-MCR_df <- read.csv("output/MCR_df.csv")
 copykat_CNA <- data.frame(copykat_res$CNAmat)
 copykat_CNA_chr19 <- copykat_CNA[copykat_CNA$chrom == 19, ]
-
-selected_copykat_intervals <- copykat_CNA_chr19[, "chrompos", drop = FALSE]
-selected_copykat_intervals$end <- selected_copykat_intervals$chrompos
-for (i in seq(2, nrow(selected_copykat_intervals))) {
-    selected_copykat_intervals$end[i - 1] <- selected_copykat_intervals$chrompos[i]
-}
-selected_copykat_intervals$id <- rownames(selected_copykat_intervals)
-
-selected_copykat_intervals <- selected_copykat_intervals[selected_copykat_intervals$chrompos >= MCR_df$start - 1e6 & selected_copykat_intervals$end <= MCR_df$end + 1.e6, ]
-
-g <- ggplot(selected_copykat_intervals, aes(
-    x = chrompos, xend = end, y = id, yend = id, color = id)
-) 
-g <- g + geom_segment(linewidth = 1)
-g <- g + scale_x_continuous(
-    "Position", 
-    limits = c(min(selected_copykat_intervals$chrompos), max(selected_copykat_intervals$end)),
-    labels = scales::comma
-)
-g <- g + theme_minimal()
-g <- g + scale_color_manual(values = colorRampPalette(c("#00264D","#5C93D1"))(220))
-g <- g + theme(
-    axis.text.y = element_text(angle = 45, hjust = 1),
-    legend.position = "none",
-    axis.title.x = element_blank(),
-    axis.title.y = element_blank()
-)
-g <- g + geom_segment(data = MCR_df, aes(x = start, xend = end, y = min(selected_copykat_intervals$id), yend = min(selected_copykat_intervals$id)), color = "red")
-g <- g + geom_vline(xintercept = c(MCR_df$start, MCR_df$end), color = "red", linetype = "dashed")
-g
-
-ggsave(file.path(output_dir, "copykat_intervals_overlapping_MCR.pdf"), g, width = 10, height = 10)
-
-selected_copykat_intervals$any_overlap_with_MCR <- FALSE
-for (i in seq_len(nrow(selected_copykat_intervals))) {
-    selected_copykat_intervals$any_overlap_with_MCR[i] <- c(selected_copykat_intervals$chrompos[i], selected_copykat_intervals$end[i]) %overlaps% c(MCR_df$start, MCR_df$end)
-}
-MCR_overlapping_copykat_intervals <- selected_copykat_intervals[selected_copykat_intervals$any_overlap_with_MCR, ]
+MCR_overlapping_copykat_intervals <- file.path(output_dir, "MCR_overlapping_copykat_intervals.RDS")
 
 # copykat intervals within MCR vs. MYC ------------------------------------
 selected_copykat_df <- copykat_CNA_chr19[copykat_CNA_chr19$chrompos %in% MCR_overlapping_copykat_intervals$chrompos, ]
@@ -82,8 +43,8 @@ for (i in seq_len(nrow(selected_copykat_df))) {
 g1 <- ggpubr::ggarrange(plotlist = overall_list, ncol = 1)
 g2 <- ggpubr::ggarrange(plotlist = cancer_cells_list, ncol = 1)
 
-ggsave(file.path(output_dir, "3.all_cells_MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g1, width = 12, height = 25)
-ggsave(file.path(output_dir, "4.cancer_cells_MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g2, width = 12, height = 25)
+ggsave(file.path(output_dir, "4.all_cells_MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g1, width = 12, height = 25)
+ggsave(file.path(output_dir, "5.cancer_cells_MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g2, width = 12, height = 25)
 
 # gene CN estimates vs. MYC -----------------------------------------------
 MCR_genes_df <- read.csv("output/MCR_genes_df.csv", row.names = 1)
@@ -139,8 +100,8 @@ for (i in seq_len(nrow(genes_copykat_df))) {
 g3 <- ggpubr::ggarrange(plotlist = overall_list_genes, ncol = 1)
 g4 <- ggpubr::ggarrange(plotlist = cancer_cells_list_genes, ncol = 1)
 
-ggsave(file.path(output_dir, "5.all_cells_MCR_gene_CNA_value_vs_MYC_expr_colocalization.pdf"), g3, width = 12, height = 40)
-ggsave(file.path(output_dir, "6.cancer_cells_MCR_gene_CNA_value_vs_MYC_expr_colocalization.pdf"), g4, width = 12, height = 40)
+ggsave(file.path(output_dir, "6.all_cells_MCR_gene_CNA_value_vs_MYC_expr_colocalization.pdf"), g3, width = 12, height = 40)
+ggsave(file.path(output_dir, "7.cancer_cells_MCR_gene_CNA_value_vs_MYC_expr_colocalization.pdf"), g4, width = 12, height = 40)
 
 # coexpr.  MYC + microdel genes -------------------------------------------
 gset <- readLines("output/MCR_genes.txt")

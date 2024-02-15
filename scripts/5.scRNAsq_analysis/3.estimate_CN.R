@@ -5,8 +5,8 @@
 library(Seurat)
 library(copykat)
 
-astro_obj <- readRDS("output/Venteicher_scRNAseq/astro_seurat_obj.RDS")
 output_dir <- "output/Venteicher_scRNAseq"
+astro_obj <- readRDS(file.path(output_dir, "astro_seurat_obj.RDS"))
 
 basic_cluster_type_vec <- readRDS(file.path(output_dir, "basic_cluster_type_vec.RDS"))
 normal_clusters <- names(basic_cluster_type_vec)[basic_cluster_type_vec == "Normal Cell"]

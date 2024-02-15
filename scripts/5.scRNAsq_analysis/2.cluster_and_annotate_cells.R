@@ -6,8 +6,8 @@ library(Seurat)
 library(clustree)
 library(ggplot2)
 
-astro_obj <- readRDS("output/Venteicher_scRNAseq/astro_seurat_obj.RDS")
 output_dir <- "output/Venteicher_scRNAseq"
+astro_obj <- readRDS(file.path(output_dir, "astro_seurat_obj.RDS"))
 
 # utility -----------------------------------------------------------------
 #' Parse stdout log from SCSA annotation to get annotation table

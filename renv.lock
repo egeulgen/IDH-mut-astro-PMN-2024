@@ -727,26 +727,6 @@
       ],
       "Hash": "a56a6365b3fa73293ea8d084be0d9bb0"
     },
-    "MCMCpack": {
-      "Package": "MCMCpack",
-      "Version": "1.6-3",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "MASS",
-        "R",
-        "coda",
-        "grDevices",
-        "graphics",
-        "lattice",
-        "mcmc",
-        "methods",
-        "quantreg",
-        "stats",
-        "utils"
-      ],
-      "Hash": "520335edba1c95a90eec54d693727723"
-    },
     "Matrix": {
       "Package": "Matrix",
       "Version": "1.6-3",
@@ -1014,16 +994,6 @@
         "methods"
       ],
       "Hash": "6af2d9ed44e0281f6ae77eb6bed7a3c9"
-    },
-    "RcppParallel": {
-      "Package": "RcppParallel",
-      "Version": "5.1.7",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "a45594a00f5dbb073d5ec9f48592a08a"
     },
     "RcppProgress": {
       "Package": "RcppProgress",
@@ -1852,17 +1822,6 @@
       ],
       "Hash": "8f880c9d123b03160c5666026dcc7f9e"
     },
-    "coda": {
-      "Package": "coda",
-      "Version": "0.19-4",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "lattice"
-      ],
-      "Hash": "24b6d006b8b2343876cf230687546932"
-    },
     "codetools": {
       "Package": "codetools",
       "Version": "0.2-19",
@@ -1893,29 +1852,6 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "d691c61bff84bd63c383874d2d0c3307"
-    },
-    "copykat": {
-      "Package": "copykat",
-      "Version": "1.1.0",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "copykat",
-      "RemoteUsername": "navinlabcode",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "b795ff793522499f814f6ae282aad1aab790902f",
-      "Requirements": [
-        "MCMCpack",
-        "R",
-        "RColorBrewer",
-        "cluster",
-        "dlm",
-        "gplots",
-        "mixtools",
-        "parallel",
-        "parallelDist"
-      ],
-      "Hash": "6cd114081640b0e29193ce0c82d1e406"
     },
     "corrplot": {
       "Package": "corrplot",
@@ -2097,20 +2033,6 @@
         "stats"
       ],
       "Hash": "fd6209a5ad74d6791b54c6bbb3c324f6"
-    },
-    "dlm": {
-      "Package": "dlm",
-      "Version": "1.1-6",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "grDevices",
-        "graphics",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "e0dff489d999029c03330f063668e590"
     },
     "doParallel": {
       "Package": "doParallel",
@@ -3390,17 +3312,6 @@
       ],
       "Hash": "6381ce71e9498075fbeb229fd3180f62"
     },
-    "mcmc": {
-      "Package": "mcmc",
-      "Version": "0.9-8",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "stats"
-      ],
-      "Hash": "d96d8fc4c4682220c601d294d2bc387e"
-    },
     "memoise": {
       "Package": "memoise",
       "Version": "2.0.1",
@@ -3460,23 +3371,6 @@
         "Rcpp"
       ],
       "Hash": "f48238f8d4740426ca12f53f27d004dd"
-    },
-    "mixtools": {
-      "Package": "mixtools",
-      "Version": "2.0.0",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "MASS",
-        "R",
-        "kernlab",
-        "plotly",
-        "scales",
-        "segmented",
-        "stats",
-        "survival"
-      ],
-      "Hash": "2b9414057d7f3725130e2f743ea05a2f"
     },
     "modeltools": {
       "Package": "modeltools",
@@ -3594,19 +3488,6 @@
         "methods"
       ],
       "Hash": "120d734b7c6eaed99d8f5f61e6c125ed"
-    },
-    "parallelDist": {
-      "Package": "parallelDist",
-      "Version": "0.2.6",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "RcppArmadillo",
-        "RcppParallel"
-      ],
-      "Hash": "3141cdd4fa667a29965fc9b6d6dbba42"
     },
     "parallelly": {
       "Package": "parallelly",
@@ -4448,17 +4329,6 @@
         "rlang"
       ],
       "Hash": "0242402f321be0246fb67cf8c63b3572"
-    },
-    "segmented": {
-      "Package": "segmented",
-      "Version": "2.0-0",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "MASS",
-        "nlme"
-      ],
-      "Hash": "cd990c6fc982ab812870d349d5e11023"
     },
     "selectr": {
       "Package": "selectr",

@@ -19,32 +19,74 @@ copykat_res <- readRDS(file.path(output_dir, "copykat_res.RDS"))
 
 copykat_CNA <- data.frame(copykat_res$CNAmat)
 copykat_CNA_chr19 <- copykat_CNA[copykat_CNA$chrom == 19, ]
-MCR_overlapping_copykat_intervals <- file.path(output_dir, "MCR_overlapping_copykat_intervals.RDS")
+MCR_overlapping_copykat_intervals <- readRDS(file.path(output_dir, "MCR_overlapping_copykat_intervals.RDS"))
 
-# copykat intervals within MCR vs. MYC ------------------------------------
+
+# workaround for Seurat:::BlendExpression issue ---------------------------
+
+fixed_BlendExpression <- function(data) {
+    if (ncol(x = data) != 2) {
+        stop("'BlendExpression' only blends two features")
+    }
+    features <- colnames(x = data)
+    data <- as.data.frame(x = apply(
+        X = data,
+        MARGIN = 2,
+        FUN = function(x) {
+            if (min(x) == max(x)) {
+                return(rep(0, length(x)))
+            }
+            return(round(x = 9 * (x - min(x)) / (max(x) - min(x))))
+        }
+    ))
+    data[, 3] <- data[, 1] + data[, 2] * 10
+    colnames(x = data) <- c(features, paste(features, collapse = '_'))
+    for (i in 1:ncol(x = data)) {
+        data[, i] <- factor(x = data[, i])
+    }
+    return(data)
+}
+
+assignInNamespace("BlendExpression", fixed_BlendExpression, ns="Seurat", pos="package:Seurat")
+ 
+
+# split cells into any MCRdel vs no del -----------------------------------
 selected_copykat_df <- copykat_CNA_chr19[copykat_CNA_chr19$chrompos %in% MCR_overlapping_copykat_intervals$chrompos, ]
 selected_copykat_df$end <- MCR_overlapping_copykat_intervals$end[match(MCR_overlapping_copykat_intervals$chrompos, selected_copykat_df$chrompos)]
 
-## using keep.scale = “feature” (default; by row/feature scaling) for the blended feature plots: 
+selected_copykat_mat <- selected_copykat_df[, -c(1:3)] 
+
+selected_copykat_del_mask <- selected_copykat_mat < 0
+cells_with_any_mcr_del <- names(which(colSums(selected_copykat_del_mask) > 5))
+
+astro_obj[["any_MCR_deletion"]] <- ifelse(colnames(astro_obj) %in% cells_with_any_mcr_del, "with MCR deletion", "without MCR deletion")
+
+# copykat intervals within MCR vs. MYC ------------------------------------
+
+## using keep.scale = “feature” (default; by row/feature scaling) for the blended feature plots
+## so that plots are comparable: 
 # The plots for each individual feature are scaled to the maximum expression of 
 # the feature across the conditions provided to split.by
-overall_list <- list()
-cancer_cells_list <- list()
+cancer_plot_list <- all_plot_list <- list()
 for (i in seq_len(nrow(selected_copykat_df))) {
-    region <- paste0(selected_copykat_df$chrom[i], ":", selected_copykat_df$chrompos[i])
+    region <- paste0("copykat_region_", rownames(selected_copykat_df)[i])
     
     astro_obj[[region]] <- as.numeric(selected_copykat_df[i, colnames(astro_obj)])
     cancer_cells_obj <- subset(astro_obj, idents = cancer_clusters)
     
-    overall_list[[region]] <- FeaturePlot(astro_obj, features = c(region, "MYC"), blend = TRUE, label = TRUE)
-    cancer_cells_list[[region]] <- FeaturePlot(cancer_cells_obj, features = c(region, "MYC"), blend = TRUE, label = TRUE)
+    FeaturePlot(astro_obj, features = c(region, "MYC"), blend = TRUE, split.by = "any_MCR_deletion")
+
+    plot_all <- FeaturePlot(astro_obj, features = c(region, "MYC"), blend = TRUE, split.by = "any_MCR_deletion")
+    plot_cancer <- FeaturePlot(cancer_cells_obj, features = c(region, "MYC"), blend = TRUE, split.by = "any_MCR_deletion")
+    all_plot_list[[region]] <- plot_all
+    cancer_plot_list[[region]] <- plot_cancer
 }
 
-g1 <- ggpubr::ggarrange(plotlist = overall_list, ncol = 1)
-g2 <- ggpubr::ggarrange(plotlist = cancer_cells_list, ncol = 1)
+g1 <- cowplot::plot_grid(plotlist = all_plot_list, ncol = 3)
+g2 <- cowplot::plot_grid(plotlist = cancer_plot_list, ncol = 3)
 
-ggsave(file.path(output_dir, "4.all_cells_MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g1, width = 12, height = 25)
-ggsave(file.path(output_dir, "5.cancer_cells_MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g2, width = 12, height = 25)
+ggsave(file.path(output_dir, "4.MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g1, width = 36, height = 18)
+ggsave(file.path(output_dir, "5.cancer_cells_MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g2, width = 36, height = 18)
 
 # gene CN estimates vs. MYC -----------------------------------------------
 MCR_genes_df <- read.csv("output/MCR_genes_df.csv", row.names = 1)

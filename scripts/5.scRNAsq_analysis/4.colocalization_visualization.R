@@ -74,8 +74,6 @@ for (i in seq_len(nrow(selected_copykat_df))) {
     astro_obj[[region]] <- as.numeric(selected_copykat_df[i, colnames(astro_obj)])
     cancer_cells_obj <- subset(astro_obj, idents = cancer_clusters)
     
-    FeaturePlot(astro_obj, features = c(region, "MYC"), blend = TRUE, split.by = "any_MCR_deletion")
-
     plot_all <- FeaturePlot(astro_obj, features = c(region, "MYC"), blend = TRUE, split.by = "any_MCR_deletion")
     plot_cancer <- FeaturePlot(cancer_cells_obj, features = c(region, "MYC"), blend = TRUE, split.by = "any_MCR_deletion")
     all_plot_list[[region]] <- plot_all

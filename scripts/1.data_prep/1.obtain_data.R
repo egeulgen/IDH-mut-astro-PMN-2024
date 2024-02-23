@@ -4,7 +4,7 @@
 
 library(TCGAbiolinks)
 library(SummarizedExperiment)
-source("scripts/utils.R")
+import::from("scripts/utils.R", determine_chr_arm_level_CN_ratios, produce_genome_SCNA_plot)
 
 dir.create("output")
 cytoband_df <- read.delim("data/hg38_cytoBand.txt", header = FALSE)

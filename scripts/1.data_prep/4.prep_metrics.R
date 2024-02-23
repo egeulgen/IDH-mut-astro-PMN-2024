@@ -2,7 +2,7 @@
 ##### Author: Ege Ulgen 
 ##### Date: Dec 2023
 
-source("scripts/utils.R")
+import::from("scripts/utils.R", determine_chr_arm_level_CN_ratios)
 
 EXOME_LEN <- 44
 cytoband_df <- read.delim("data/hg38_cytoBand.txt", header = FALSE)

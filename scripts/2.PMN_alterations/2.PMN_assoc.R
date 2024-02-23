@@ -6,7 +6,8 @@ library(ggpubr)
 library(survival)
 library(survminer)
 
-source("scripts/utils.R")
+import::from("scripts/utils.R", plot_cat)
+
 
 metadata_df <- readRDS("data/selected_data/meta.RDS")
 

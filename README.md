@@ -46,5 +46,5 @@ Below is an outline of the analysis steps with links to related scripts:
 ### 5. single-cell RNAseq analysyis
 1. [Obtain Data, create processed Seurat object](scripts/5.scRNAsq_analysis/1.obtain_data_and_process.R)
 2. [Cluster cells and annotate clusters](scripts/5.scRNAsq_analysis/2.cluster_and_annotate_cells.R)
-3. [Estimate copy-number in in (220KB)(play with `win.size`) windows](scripts/5.scRNAsq_analysis/3.estimate_CN.R)
-4. [Visualize CN estimate of MCR window(s)/genes vs. MYC expression in the same cells](scripts/5.scRNAsq_analysis/4.colocalization_visualization.R)
+3. [Estimate copy-number using `copykat`](scripts/5.scRNAsq_analysis/3.estimate_CN.R)
+4. [Visualize CN estimate of MCR regions vs. MYC expression in the same cells](scripts/5.scRNAsq_analysis/4.colocalization_visualization.R)

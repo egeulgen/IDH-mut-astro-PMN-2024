@@ -9,6 +9,9 @@ metadata_df <- readRDS("data/selected_data/meta.RDS")
 
 grade_levels <- levels(metadata_df$mol_grade)
 
+fit <- lm(MYC_expr~PMN_hit + mol_grade, data = metadata_df)
+
+
 for_plot_df <- data.frame(donor_id = metadata_df$patient,
                           grade = metadata_df$mol_grade,
                           PMN_hit = metadata_df$PMN_hit,
@@ -49,22 +52,18 @@ p2 <- p2 + theme(legend.position = "none",
                  axis.title.x = element_blank())
 p2
 
+ggsave("output/15.MYC_expr_by_hit.pdf", p2, width = 8, height = 8)
 
-for_plot_df$PMN_hit2 <- sub("\\n\\(.*", "", for_plot_df$PMN_hit)
-for_plot_df$PMN_hit2 <- factor(for_plot_df$PMN_hit2, levels = c("PMN-hit", "PMN-no hit"))
-p3 <- ggviolin(for_plot_df, "PMN_hit2", "MYC", color = "PMN_hit", add = "jitter", palette = "lancet", facet.by = "grade")
-p3 <- p3 + stat_compare_means(label.y = 14.35, label.x = 1.25, label.sep = ",\n", size = 3.5) + rremove("legend")
-p3 <- p3 + scale_y_continuous(breaks = 1:25)
-p3 <- p3 + ylab("MYC Expression")
-p3 <- p3 + theme(legend.position = "none",
-                 title = element_text(face = "bold", size = 12),
-                 axis.text = element_text(size = 11),
-                 axis.title.y = element_text(face = "bold", size = 14),
-                 axis.title.x = element_blank())
+# linear regression model -------------------------------------------------
+fit <- lm(MYC_expr~PMN_hit + mol_grade, data = metadata_df)
+summary(fit)
 
-pdf("output/15.MYC_expr_by_hit.pdf", width = 8, height = 8)
-ggarrange(ggarrange(ggplot() + theme_void(), p2, ggplot() + theme_void(), nrow = 1), p3, nrow = 2)
-dev.off()
+# Coefficients:
+#     Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                11.1028     0.0957 116.017  < 2e-16 ***
+#     PMN_hithit                  0.3014     0.1060   2.844  0.00486 ** 
+#     mol_gradeGrade 3\n(n=104)   0.2536     0.1041   2.437  0.01556 *  
+#     mol_gradeGrade 4\n(n=13)    0.5888     0.2289   2.573  0.01071 *  
 
 ### expression level by event for MYC ---------------------------------------
 scna_df <- readRDS('data/selected_data/CN_gene_level.RDS')

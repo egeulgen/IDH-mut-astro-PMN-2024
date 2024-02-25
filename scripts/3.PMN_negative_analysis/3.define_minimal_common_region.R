@@ -113,16 +113,16 @@ anyDuplicated(SummarizedExperiment::rowData(dds_norm)$gene_name[match(rownames(s
 rownames(sel_expr) <- rowData(dds_norm)$gene_name[match(rownames(sel_expr), rowData(dds_norm)$gene_id)]
 
 sel_expr_long <- reshape2::melt(sel_expr)
-colnames(sel_expr_long) <- c("Gene", "Sample", "MYC expression")
+colnames(sel_expr_long) <- c("Gene", "Sample", "Expression")
 sel_expr_long$microdel <- ifelse(sel_expr_long$Sample %in% altered_cases, "MCR del", "intact")
 
-g <- ggviolin(sel_expr_long, x = "microdel", y = "MYC expression", color = "microdel", 
+g <- ggviolin(sel_expr_long, x = "microdel", y = "Expression", color = "microdel", 
               add = "boxplot", facet.by = "Gene", palette = "npg")
 g <- g + stat_compare_means(method = "wilcox.test", method.args = list("alternative" = "less"))
 g <- g + rremove("legend")
 g <- g + rremove("xlab")
 
-ggsave("output/19.MCR_del_genes_MYC_expression.pdf", g, width = 10, height = 10)
+ggsave("output/19.MCR_del_genes_expression.pdf", g, width = 10, height = 10)
 
 write.csv(MCR_genes_df, "output/MCR_genes_df.csv")
 writeLines(MCR_genes_vec, "output/MCR_genes.txt")

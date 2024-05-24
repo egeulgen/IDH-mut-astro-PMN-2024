@@ -32,8 +32,9 @@ Below is an outline of the analysis steps with links to related scripts:
 
 #### 2. Analysis of Somatic Proximal MYC Network (PMN) Alterations
 1. [Determine PMN alterations](scripts/A.TCGA_analysis/2.PMN_alterations/1.PMN_alterations.R)
-2. [Investigate associations of PMN alterations with various factors](scripts/A.TCGA_analysis/2.PMN_alterations/2.PMN_assoc.R)
-3. [Investigate associations of MYC expression level with various factors](scripts/A.TCGA_analysis/2.PMN_alterations/3.expr_assoc.R)
+1. [Monte Carlo simulation to determine whether observed number of copy-number alterations are significant](scripts/A.TCGA_analysis/2.PMN_alterations/2.Monte_Carlo_simulation.R)
+2. [Investigate associations of PMN alterations with various factors](scripts/A.TCGA_analysis/2.PMN_alterations/3.PMN_assoc.R)
+3. [Investigate associations of MYC expression level with various factors](scripts/A.TCGA_analysis/2.PMN_alterations/4.expr_assoc.R)
 
 #### 3. Analysis of PMN-negative tumors with increased MYC expression
 1. [Determine altered genes associated with increased MYC expression](scripts/A.TCGA_analysis/3.PMN_negative_analysis/1.PMN_neg_analysis.R)

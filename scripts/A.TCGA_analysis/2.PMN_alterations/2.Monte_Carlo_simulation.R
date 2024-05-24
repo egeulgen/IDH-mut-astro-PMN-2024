@@ -65,4 +65,9 @@ p_value <- sum(permuted_counts >= observed_count) / num_permutations
 message("Observed SCNA count: ", observed_count)
 message("P-value: ", p_value)
 
+# > message("Observed SCNA count: ", observed_count)
+# Observed SCNA count: 249
+# > message("P-value: ", p_value)
+# P-value: 0.0104
+
 saveRDS(permuted_counts, "output/MC_results.RDS")

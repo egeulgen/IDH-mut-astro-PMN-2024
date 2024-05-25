@@ -1,6 +1,6 @@
 ##### Script purpose: Assess associations of MYC expression with various factors
 ##### Author: Ege Ulgen
-##### Date: Dec 2023
+##### Date: May 2024
 
 library(DESeq2)
 library(ggpubr)
@@ -41,7 +41,9 @@ p
 dev.off()
 
 ### expression level by PMN hit for MYC -------------
-p2 <- ggviolin(for_plot_df, "PMN_hit", "MYC", color = "PMN_hit", add = "jitter", palette = "lancet")
+for_plot_df$PMN_hit_factor <- factor(for_plot_df$PMN_hit, levels = c("hit", "no hit"))
+
+p2 <- ggviolin(for_plot_df, "PMN_hit_factor", "MYC", color = "PMN_hit_factor", add = "jitter", palette = "lancet")
 p2 <- p2 + stat_compare_means(label.y = 14.35, label.x = 1.25, label.sep = ",\n", size = 3.5) + rremove("legend")
 p2 <- p2 + scale_y_continuous(breaks = 1:25)
 p2 <- p2 + ylab("MYC Expression")
@@ -52,7 +54,17 @@ p2 <- p2 + theme(legend.position = "none",
                  axis.title.x = element_blank())
 p2
 
-ggsave("output/15.MYC_expr_by_hit.pdf", p2, width = 8, height = 8)
+p3 <- ggviolin(for_plot_df, "PMN_hit_factor", "MYC", color = "PMN_hit_factor", add = "jitter", palette = "lancet", facet.by = "grade")
+p3 <- p3 + scale_y_continuous(breaks = 1:25)
+p3 <- p3 + ylab("MYC Expression")
+p3 <- p3 + theme(legend.position = "none",
+                 title = element_text(face = "bold", size = 12),
+                 axis.text = element_text(size = 11),
+                 axis.title.y = element_text(face = "bold", size = 14),
+                 axis.title.x = element_blank())
+p3
+
+ggsave("output/15.MYC_expr_by_hit.pdf", ggarrange(p2, p3, nrow = 2), width = 10, height = 15)
 
 # linear regression model -------------------------------------------------
 fit <- lm(MYC_expr~PMN_hit + mol_grade, data = metadata_df)

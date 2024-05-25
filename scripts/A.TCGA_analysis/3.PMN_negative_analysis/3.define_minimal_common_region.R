@@ -80,7 +80,12 @@ del_genes_gr <- GRanges(
 )
 
 mcr_track <- AnnotationTrack(MCR_gr, name = "MCR", fill = "red")
-atrack <- AnnotationTrack(assoc_del_segments_gr, name = "deleted segments")
+atrack <- AnnotationTrack(
+    assoc_del_segments_gr, 
+    name = "copy-number loss segments",
+    showFeatureId = TRUE, 
+    id = assoc_del_segments_gr$patient_barcode
+)
 gtrack <- GenomeAxisTrack()
 itrack <- IdeogramTrack(genome = "hg38", chromosome = "chr19")
 grTrack <- GeneRegionTrack(

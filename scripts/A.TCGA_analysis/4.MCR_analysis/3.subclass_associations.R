@@ -1,6 +1,6 @@
 ##### Script purpose: Investigate various associations of PMN classes (WT, 19q microdel, PMN hit)
 ##### Author: Ege Ulgen
-##### Date: Feb 2024
+##### Date: May 2024
 
 library(ggpubr)
 library(survival)
@@ -82,13 +82,18 @@ ggsave("output/24.alter_class_survival.pdf", g_surv, width = 8, height = 15)
 # by grade ----------------------------------------------------------------
 tbl <- table(metadata_df$mol_grade, metadata_df$class)
 
+counts_df <- as.data.frame(tbl)
+counts_df <- counts_df[counts_df$Freq != 0, ]
+
 perc_df <- round(tbl / rowSums(tbl), 4)
 perc_df <- as.data.frame(perc_df)
 perc_df <- perc_df[perc_df$Freq != 0, ]
 
+perc_df$text <- paste(counts_df$Freq, paste0("(", perc_df$Freq * 100, "%)"))
+
 p <- ggplot(perc_df, aes(y = Freq, x = Var1, fill = Var2))
 p <- p + geom_bar(stat = "identity", position = "stack", aes(color = Var2))
-p <- p + geom_text(aes(label = paste0(Freq * 100, "%")),
+p <- p + geom_text(aes(label = text),
                    position = position_stack(vjust = 0.5), size = 4, color = "white")
 p <- p + geom_text(label = paste0("Fisher's Exact,\np = ", round(fisher.test(tbl)$p.value, 3)),
                    size = 3, position = position_stack(vjust = 1),

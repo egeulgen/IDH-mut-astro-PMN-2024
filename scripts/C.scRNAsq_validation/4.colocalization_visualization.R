@@ -1,6 +1,6 @@
 ##### Script purpose: Visualize CN estimate of MCR window(s)/genes vs. MYC expression in the same cells
 ##### Author: Ege Ulgen
-##### Date: Feb 2024
+##### Date: May 2024
 
 library(Seurat)
 library(ggplot2)
@@ -67,7 +67,7 @@ astro_obj[["any_MCR_deletion"]] <- ifelse(colnames(astro_obj) %in% cells_with_an
 ## so that plots are comparable: 
 # The plots for each individual feature are scaled to the maximum expression of 
 # the feature across the conditions provided to split.by
-cancer_plot_list <- all_plot_list <- list()
+cancer_plot_list <- all_plot_list <- cancer_models <- list()
 for (i in seq_len(nrow(selected_copykat_df))) {
     region <- paste0("copykat_region_", rownames(selected_copykat_df)[i])
     
@@ -78,6 +78,12 @@ for (i in seq_len(nrow(selected_copykat_df))) {
     plot_cancer <- FeaturePlot(cancer_cells_obj, features = c(region, "MYC"), blend = TRUE, split.by = "any_MCR_deletion")
     all_plot_list[[region]] <- plot_all
     cancer_plot_list[[region]] <- plot_cancer
+    
+    any_MCR_del <- FetchData(cancer_cells_obj, "any_MCR_deletion")[, "any_MCR_deletion"]
+    region_estimate <- FetchData(cancer_cells_obj, region)[, region]
+    myc_expression <- FetchData(cancer_cells_obj, "MYC")[, "MYC"]
+    
+    cancer_models[[region]] <- lm(myc_expression~region_estimate:any_MCR_del) 
 }
 
 g1 <- cowplot::plot_grid(plotlist = all_plot_list, ncol = 3)
@@ -85,6 +91,10 @@ g2 <- cowplot::plot_grid(plotlist = cancer_plot_list, ncol = 3)
 
 ggsave(file.path(output_dir, "4.MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g1, width = 36, height = 18)
 ggsave(file.path(output_dir, "5.cancer_cells_MCR_CNA_value_vs_MYC_expr_colocalization.pdf"), g2, width = 36, height = 18)
+
+g_models <- sjPlot::plot_models(cancer_models, m.labels = names(cancer_models))
+
+ggsave(file.path(output_dir, "cancer_cells_MCR_CNA_value_vs_MYC_expr_models.pdf"), g_models, width = 10, height = 10)
 
 # gene CN estimates vs. MYC -----------------------------------------------
 MCR_genes_df <- read.csv("output/MCR_genes_df.csv", row.names = 1)

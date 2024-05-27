@@ -1295,7 +1295,7 @@
     },
     "SparseArray": {
       "Package": "SparseArray",
-      "Version": "1.4.5",
+      "Version": "1.4.8",
       "Source": "Bioconductor",
       "Repository": "Bioconductor 3.19",
       "Requirements": [
@@ -1312,7 +1312,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "c3a929f64891a53c31f4b35c3d06a056"
+      "Hash": "97f70ff11c14edd379ee2429228cbb60"
     },
     "SparseM": {
       "Package": "SparseM",

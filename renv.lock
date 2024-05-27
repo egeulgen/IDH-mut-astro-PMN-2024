@@ -4587,10 +4587,10 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteUsername": "guokai8",
+      "RemoteUsername": "egeulgen",
       "RemoteRepo": "scGSVA",
       "RemoteRef": "main",
-      "RemoteSha": "ca3b228c6e6b4e28e3bba94abef26b8ae307b0c7",
+      "RemoteSha": "981d9cb7af4ca6a88b5fb001cd08b80fde661fa1",
       "Requirements": [
         "AnnotationDbi",
         "BiocManager",
@@ -4619,7 +4619,7 @@
         "tidyr",
         "viridis"
       ],
-      "Hash": "673fe073a8dc07c2cf585821ff7079a0"
+      "Hash": "a05ab744f2d8a1cba707c031e17cdc1b"
     },
     "scales": {
       "Package": "scales",

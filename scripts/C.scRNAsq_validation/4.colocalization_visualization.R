@@ -79,11 +79,13 @@ for (i in seq_len(nrow(selected_copykat_df))) {
     all_plot_list[[region]] <- plot_all
     cancer_plot_list[[region]] <- plot_cancer
     
+    # fitting a Poisson regression model:
+    # MYC expression (count) = B0 + B1 x region estimate x I(with MCR deletion) + B2 x region estimate x I(without MCR deletion)
     any_MCR_del <- FetchData(cancer_cells_obj, "any_MCR_deletion")[, "any_MCR_deletion"]
     region_estimate <- FetchData(cancer_cells_obj, region)[, region]
-    myc_expression <- FetchData(cancer_cells_obj, "MYC")[, "MYC"]
+    myc_expression <- round(FetchData(cancer_cells_obj, "MYC", layer = "counts")[, "MYC"])
     
-    cancer_models[[region]] <- lm(myc_expression~region_estimate:any_MCR_del) 
+    cancer_models[[region]] <- glm(myc_expression~region_estimate:any_MCR_del, family = poisson) 
 }
 
 g1 <- cowplot::plot_grid(plotlist = all_plot_list, ncol = 3)
@@ -195,7 +197,18 @@ pdf(file.path(output_dir, "MYC_and_MCR_gene_set.pdf"), width = 12, height = 4)
 FeaturePlot(astro_obj, features = c("MCR_del_genes", "MYC"), blend = TRUE, label = TRUE)
 dev.off()
 
-pdf(file.path(output_dir, "cancer_cells_MYC_and_MCR_gene_set.pdf"), width = 15, height = 4)
+
 cancer_cells_obj <- subset(astro_obj, idents = cancer_clusters)
-plot(FeaturePlot(cancer_cells_obj, features = c("MCR_del_genes", "MYC"), blend = TRUE, label = TRUE))
-dev.off()
+g_blend <- FeaturePlot(cancer_cells_obj, features = c("MCR_del_genes", "MYC"), blend = TRUE, label = TRUE, split.by = "any_MCR_deletion")
+
+
+any_MCR_del <- FetchData(cancer_cells_obj, "any_MCR_deletion")[, "any_MCR_deletion"]
+agg_expr <- FetchData(cancer_cells_obj, "MCR_del_genes")[, "MCR_del_genes"]
+myc_expression <- round(FetchData(cancer_cells_obj, "MYC", layer = "counts")[, "MYC"])
+
+g_model <- sjPlot::plot_model(glm(myc_expression~agg_expr:any_MCR_del, family = poisson))
+
+g_final <- cowplot::plot_grid(g_blend, g_model, nrow = 2)
+
+
+ggsave(file.path(output_dir, "cancer_cells_MYC_and_MCR_gene_set.pdf"), g_final, width = 10, height = 10)

@@ -47,17 +47,9 @@ Below is an outline of the analysis steps with links to related scripts:
 2. [Investigate associations of PMN sub-classes with various factors](scripts/A.TCGA_analysis/4.MCR_analysis/2.MCR_in_all_samples.R)
 3. [Determine deletion status for the 19q MCR in all samples](scripts/A.TCGA_analysis/4.MCR_analysis/3.subclass_associations.R)
 
+### B. Validation - Single-cell RNA-sequencing analysyis - Venteicher et al. 2017 - GSE89567
 
-### B. Bulk Analysis - Validation - GLASS Consortium Diffuse Glioma Dataset
-
-#### 1. Preparation
-
-1. [Obtain GLASS data and classify tumours (based on IDH mutation and 1p/19q codeletion status)](scripts/B.GLASS_validation/1.data_prep/1.obtain_data.R)
-
-
-### C. Validation - Single-cell RNA-sequencing analysyis - Venteicher et al. 2017 - GSE89567
-
-1. [Obtain Data, create processed Seurat object](scripts/C.scRNAsq_validation/1.obtain_data_and_process.R)
-2. [Cluster cells and annotate clusters](scripts/C.scRNAsq_validation/2.cluster_and_annotate_cells.R)
-3. [Estimate copy-number using `copykat`](scripts/C.scRNAsq_validation/3.estimate_CN.R)
-4. [Visualize CN estimate of MCR regions vs. MYC expression in the same cells](scripts/C.scRNAsq_validation/4.colocalization_visualization.R)
+1. [Obtain Data, create processed Seurat object](scripts/B.scRNAsq_validation/1.obtain_data_and_process.R)
+2. [Cluster cells and annotate clusters](scripts/B.scRNAsq_validation/2.cluster_and_annotate_cells.R)
+3. [Estimate copy-number using `copykat`](scripts/B.scRNAsq_validation/3.estimate_CN.R)
+4. [Visualize CN estimate of MCR regions vs. MYC expression in the same cells](scripts/B.scRNAsq_validation/4.colocalization_visualization.R)

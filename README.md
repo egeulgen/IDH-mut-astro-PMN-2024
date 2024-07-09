@@ -1,5 +1,9 @@
 # PMN-latest - "Proximal MYC Network in IDH-mutant 1p/19q non-codeleted gliomas" Analysis
 
+Ülgen E, Gerlevik U, Gerlevik S, et al. A microdeletion event at 19q13.43 in IDH-mutant astrocytomas is strongly correlated with MYC overexpression. Acta Neuropathol Commun. 2024;12(1):95.
+
+https://actaneurocomms.biomedcentral.com/articles/10.1186/s40478-024-01811-1
+
 ## Prequisite
 This repo/R project uses [renv](https://rstudio.github.io/renv/index.html) to create a reproducible environment. You may install the latest version of `renv` from CRAN via:
 
